@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Harlem Renaissance — Interactive Cultural Archive</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fraunces (Modern Editorial Serif) & Plus Jakarta Sans (Clean Geometric Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FAF8F6',
+                        pure: '#FFFFFF',
+                        brown: {
+                            DEFAULT: '#3E2723',
+                            light: '#5D4037',
+                            muted: '#795548',
+                            border: '#E8DFDA'
+                        },
+                        crimson: {
+                            DEFAULT: '#C62828',
+                            hover: '#B71C1C',
+                            soft: '#FFEBEE'
+                        },
+                        gold: {
+                            DEFAULT: '#F9A825',
+                            bright: '#FBC02D',
+                            soft: '#FFF9C4'
+                        },
+                        blush: {
+                            DEFAULT: '#FCE4EC',
+                            medium: '#F8BBD0',
+                            deep: '#F48FB1'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Fraunces', 'Georgia', 'serif'],
+                        sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Minimalist Custom Scrollbar & Smooth Transitions */
+        body {
+            background-color: #FAF8F6;
+            color: #3E2723;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .editorial-title {
+            font-family: 'Fraunces', serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* Subtle card hover elevation */
+        .figure-card {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+        }
+        .figure-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px -8px rgba(62, 39, 35, 0.08);
+            border-color: #F8BBD0;
+        }
+
+        /* Modal backdrop transition */
+        .modal-backdrop {
+            transition: opacity 0.25s ease;
+        }
+        .modal-panel {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+        }
+
+        /* Custom thin scrollbar inside modal */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #FAF8F6;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #D7CCC8;
+            border-radius: 9999px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #3E2723;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-blush-medium selection:text-brown">
+
+    <!-- Minimalist Sticky Navigation -->
+    <header class="sticky top-0 z-30 bg-pure/95 backdrop-blur-md border-b border-brown-border">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 gap-3">
+                <!-- Brand / Title -->
+                <div class="flex items-center gap-3">
+                    <span class="inline-block w-3 h-3 rounded-full bg-crimson"></span>
+                    <span class="inline-block w-3 h-3 rounded-full bg-gold-bright -ml-1.5"></span>
+                    <span class="inline-block w-3 h-3 rounded-full bg-blush-medium -ml-1.5"></span>
+                    <button onclick="switchTab('figures')" class="text-left focus:outline-none">
+                        <span class="editorial-title font-bold text-lg sm:text-xl text-brown tracking-tight">Harlem Renaissance</span>
+                    </button>
+                </div>
+
+                <!-- View Switcher Pills -->
+                <nav class="flex items-center gap-1.5 bg-cream p-1 rounded-full border border-brown-border self-start sm:self-auto" aria-label="Primary Navigation">
+                    <button id="nav-figures" onclick="switchTab('figures')" class="nav-pill px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all bg-brown text-pure shadow-sm">
+                        Notable Figures
+                    </button>
+                    <button id="nav-overview" onclick="switchTab('overview')" class="nav-pill px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all text-brown hover:bg-blush/60">
+                        Historical Overview
+                    </button>
+                    <button id="nav-quiz" onclick="switchTab('quiz')" class="nav-pill px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all text-brown hover:bg-blush/60">
+                        Knowledge Quiz
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Editorial Hero Banner -->
+    <section class="bg-pure border-b border-brown-border">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blush text-brown text-xs font-semibold tracking-wide uppercase mb-4">
+                    <span class="w-1.5 h-1.5 rounded-full bg-crimson"></span>
+                    1918 – 1937 • New York City
+                </div>
+                <h1 class="editorial-title text-3xl sm:text-5xl font-bold text-brown leading-tight mb-4">
+                    Voices, Art &amp; Legacy of the <span class="text-crimson underline decoration-gold-bright decoration-4 underline-offset-4">New Negro Movement</span>
+                </h1>
+                <p class="text-brown-light text-base sm:text-lg leading-relaxed">
+                    Explore the intellectual, social, and artistic explosion centered in Harlem, Manhattan. Discover the groundbreaking works and intimate personal stories of the visionaries who reshaped American culture.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+        <!-- ========================================================= -->
+        <!-- VIEW 1: NOTABLE FIGURES DIRECTORY                         -->
+        <!-- ========================================================= -->
+        <section id="view-figures" class="space-y-8">
+            <!-- Controls: Search & Discipline Filter -->
+            <div class="bg-pure p-4 sm:p-5 rounded-2xl border border-brown-border shadow-sm space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <!-- Category Pills -->
+                    <div id="category-filters" class="flex flex-wrap gap-2">
+                        <button data-cat="All" class="cat-btn active px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-crimson text-pure transition-colors">
+                            All Figures (12)
+                        </button>
+                        <button data-cat="Literature & Poetry" class="cat-btn px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-cream text-brown hover:bg-blush transition-colors">
+                            Literature &amp; Poetry
+                        </button>
+                        <button data-cat="Music & Jazz" class="cat-btn px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-cream text-brown hover:bg-blush transition-colors">
+                            Music &amp; Jazz
+                        </button>
+                        <button data-cat="Visual Arts" class="cat-btn px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-cream text-brown hover:bg-blush transition-colors">
+                            Visual Arts
+                        </button>
+                        <button data-cat="Stage & Screen" class="cat-btn px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-cream text-brown hover:bg-blush transition-colors">
+                            Stage &amp; Screen
+                        </button>
+                        <button data-cat="Thinkers & Activists" class="cat-btn px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-cream text-brown hover:bg-blush transition-colors">
+                            Thinkers &amp; Activists
+                        </button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative w-full md:w-64 shrink-0">
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="Search name, work, or life..." 
+                            class="w-full pl-9 pr-4 py-2 bg-cream border border-brown-border rounded-full text-sm text-brown placeholder-brown-muted focus:outline-none focus:border-crimson focus:bg-pure transition-colors"
+                        >
+                        <svg class="w-4 h-4 text-brown-muted absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Count Info -->
+            <div class="flex items-center justify-between text-xs sm:text-sm text-brown-muted px-1">
+                <p id="results-counter">Showing 12 iconic figures — click any card to read their history &amp; personal life</p>
+                <button id="reset-filters-btn" onclick="resetFilters()" class="hidden text-crimson font-semibold hover:underline">Reset filters</button>
+            </div>
+
+            <!-- Figures Grid -->
+            <div id="figures-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated dynamically via JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16 bg-pure rounded-2xl border border-brown-border">
+                <div class="w-12 h-12 rounded-full bg-blush text-crimson mx-auto flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="editorial-title text-lg font-bold text-brown mb-1">No matching figures found</h3>
+                <p class="text-sm text-brown-muted mb-4">Try adjusting your search keyword or selecting another category.</p>
+                <button onclick="resetFilters()" class="px-4 py-2 rounded-full bg-brown text-pure text-xs font-semibold hover:bg-crimson transition-colors">
+                    Show All Figures
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- VIEW 2: HISTORICAL OVERVIEW & TIMELINE                    -->
+        <!-- ========================================================= -->
+        <section id="view-overview" class="hidden space-y-10">
+            <!-- Core Pillars Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-pure p-6 sm:p-7 rounded-2xl border border-brown-border">
+                    <span class="inline-block px-3 py-1 rounded-full bg-gold-soft text-brown text-xs font-bold mb-4">01 • Catalyst</span>
+                    <h2 class="editorial-title text-xl font-bold text-brown mb-2">The Great Migration</h2>
+                    <p class="text-sm text-brown-light leading-relaxed">
+                        Between 1916 and 1940, over 1.5 million African Americans relocated from the rural, Jim Crow South to northern industrial cities. Harlem became the premier destination, transforming into a vibrant Black metropolis of intellectuals, artists, and working-class dreamers.
+                    </p>
+                </div>
+
+                <div class="bg-pure p-6 sm:p-7 rounded-2xl border border-brown-border">
+                    <span class="inline-block px-3 py-1 rounded-full bg-blush text-crimson text-xs font-bold mb-4">02 • Philosophy</span>
+                    <h2 class="editorial-title text-xl font-bold text-brown mb-2">The "New Negro"</h2>
+                    <p class="text-sm text-brown-light leading-relaxed">
+                        Coined and popularized by philosopher Alain Locke in 1925, the "New Negro" rejected old racial caricatures. It championed self-determination, racial pride, modern artistic expression, and an unapologetic celebration of African heritage and everyday Black life.
+                    </p>
+                </div>
+
+                <div class="bg-pure p-6 sm:p-7 rounded-2xl border border-brown-border">
+                    <span class="inline-block px-3 py-1 rounded-full bg-crimson-soft text-crimson text-xs font-bold mb-4">03 • Lasting Legacy</span>
+                    <h2 class="editorial-title text-xl font-bold text-brown mb-2">Global Cultural Shift</h2>
+                    <p class="text-sm text-brown-light leading-relaxed">
+                        Though the Great Depression slowed patronage in the 1930s, the movement permanently redefined American literature, jazz, visual art, and theater—laying the cultural and intellectual groundwork for the Civil Rights Movement of the 1950s and 1960s.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Minimalist Timeline -->
+            <div class="bg-pure p-6 sm:p-10 rounded-2xl border border-brown-border">
+                <div class="mb-8">
+                    <span class="text-xs font-bold uppercase tracking-wider text-crimson">Chronology</span>
+                    <h2 class="editorial-title text-2xl sm:text-3xl font-bold text-brown mt-1">Key Milestones of the Era</h2>
+                </div>
+
+                <div class="relative border-l-2 border-gold-bright ml-3 sm:ml-4 space-y-8 pl-6 sm:pl-8">
+                    <!-- Timeline Item 1 -->
+                    <div class="relative">
+                        <span class="w-3.5 h-3.5 rounded-full bg-crimson border-2 border-pure absolute -left-[31px] sm:-left-[39px] top-1.5"></span>
+                        <span class="inline-block px-2.5 py-0.5 rounded-md bg-cream border border-brown-border text-xs font-bold text-brown mb-1">1919</span>
+                        <h3 class="editorial-title text-lg font-bold text-brown">The 369th Infantry "Harlem Hellfighters" Return</h3>
+                        <p class="text-sm text-brown-light mt-1 leading-relaxed">
+                            Following heroic service in World War I, the all-Black 369th Infantry Regiment marches up Fifth Avenue into Harlem, sparking immense racial pride and introducing European audiences to James Reese Europe's jazz band.
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item 2 -->
+                    <div class="relative">
+                        <span class="w-3.5 h-3.5 rounded-full bg-gold-bright border-2 border-pure absolute -left-[31px] sm:-left-[39px] top-1.5"></span>
+                        <span class="inline-block px-2.5 py-0.5 rounded-md bg-cream border border-brown-border text-xs font-bold text-brown mb-1">1921</span>
+                        <h3 class="editorial-title text-lg font-bold text-brown"><em>Shuffle Along</em> Triumphs on Broadway</h3>
+                        <p class="text-sm text-brown-light mt-1 leading-relaxed">
+                            Written, produced, and performed by African Americans (including Eubie Blake, Noble Sissle, and a young Josephine Baker), this hit musical proves Black theater can command mainstream Broadway audiences.
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item 3 -->
+                    <div class="relative">
+                        <span class="w-3.5 h-3.5 rounded-full bg-crimson border-2 border-pure absolute -left-[31px] sm:-left-[39px] top-1.5"></span>
+                        <span class="inline-block px-2.5 py-0.5 rounded-md bg-cream border border-brown-border text-xs font-bold text-brown mb-1">1925</span>
+                        <h3 class="editorial-title text-lg font-bold text-brown">Publication of <em>The New Negro</em> Anthology</h3>
+                        <p class="text-sm text-brown-light mt-1 leading-relaxed">
+                            Edited by Alain Locke and illustrated by Aaron Douglas, this landmark anthology brings together poetry, fiction, and essays by Langston Hughes, Zora Neale Hurston, Claude McKay, and W.E.B. Du Bois.
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item 4 -->
+                    <div class="relative">
+                        <span class="w-3.5 h-3.5 rounded-full bg-gold-bright border-2 border-pure absolute -left-[31px] sm:-left-[39px] top-1.5"></span>
+                        <span class="inline-block px-2.5 py-0.5 rounded-md bg-cream border border-brown-border text-xs font-bold text-brown mb-1">1926</span>
+                        <h3 class="editorial-title text-lg font-bold text-brown"><em>Fire!!</em> Magazine &amp; "The Negro Artist and the Racial Mountain"</h3>
+                        <p class="text-sm text-brown-light mt-1 leading-relaxed">
+                            Younger artists including Hughes, Hurston, and Wallace Thurman publish the bold avant-garde journal <em>Fire!!</em>, declaring artistic independence from both white expectations and Black middle-class respectability politics.
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item 5 -->
+                    <div class="relative">
+                        <span class="w-3.5 h-3.5 rounded-full bg-crimson border-2 border-pure absolute -left-[31px] sm:-left-[39px] top-1.5"></span>
+                        <span class="inline-block px-2.5 py-0.5 rounded-md bg-cream border border-brown-border text-xs font-bold text-brown mb-1">1937</span>
+                        <h3 class="editorial-title text-lg font-bold text-brown"><em>Their Eyes Were Watching God</em> Published</h3>
+                        <p class="text-sm text-brown-light mt-1 leading-relaxed">
+                            Zora Neale Hurston publishes her masterpiece novel, capturing the richness of Southern Black vernacular and womanhood—a crowning literary achievement as the era transitions toward the social realism of the late 1930s.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- VIEW 3: INTERACTIVE KNOWLEDGE QUIZ                        -->
+        <!-- ========================================================= -->
+        <section id="view-quiz" class="hidden max-w-2xl mx-auto">
+            <div class="bg-pure p-6 sm:p-10 rounded-2xl border border-brown-border shadow-sm">
+                <div class="flex items-center justify-between border-b border-brown-border pb-4 mb-6">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-crimson">Interactive Check</span>
+                        <h2 class="editorial-title text-2xl font-bold text-brown">History &amp; Personal Lives Quiz</h2>
+                    </div>
+                    <span id="quiz-progress-badge" class="px-3 py-1 rounded-full bg-blush text-brown text-xs font-bold">
+                        Question 1 of 5
+                    </span>
+                </div>
+
+                <!-- Active Quiz Body -->
+                <div id="quiz-active-area" class="space-y-6">
+                    <h3 id="quiz-question-text" class="editorial-title text-lg sm:text-xl font-semibold text-brown leading-snug">
+                        <!-- Question injected here -->
+                    </h3>
+
+                    <div id="quiz-options-container" class="space-y-3">
+                        <!-- Options injected here -->
+                    </div>
+
+                    <!-- Explanation Feedback Box -->
+                    <div id="quiz-feedback-box" class="hidden p-4 rounded-xl bg-cream border border-brown-border text-sm text-brown-light leading-relaxed">
+                        <!-- Feedback injected here -->
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden px-6 py-2.5 rounded-full bg-brown text-pure text-sm font-semibold hover:bg-crimson transition-colors">
+                            Next Question →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Score Summary -->
+                <div id="quiz-results-area" class="hidden text-center py-6 space-y-5">
+                    <div class="w-16 h-16 rounded-full bg-gold-soft text-brown mx-auto flex items-center justify-center border-2 border-gold-bright">
+                        <span id="quiz-score-fraction" class="editorial-title text-xl font-bold">5/5</span>
+                    </div>
+                    <div>
+                        <h3 id="quiz-result-heading" class="editorial-title text-2xl font-bold text-brown">Remarkable Knowledge!</h3>
+                        <p id="quiz-result-subtext" class="text-sm text-brown-light mt-2 max-w-md mx-auto">
+                            You explored both the cultural breakthroughs and the intimate human stories behind the Harlem Renaissance.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-3 pt-2">
+                        <button onclick="restartQuiz()" class="px-5 py-2.5 rounded-full bg-crimson text-pure text-sm font-semibold hover:bg-crimson-hover transition-colors">
+                            Retake Quiz
+                        </button>
+                        <button onclick="switchTab('figures')" class="px-5 py-2.5 rounded-full bg-cream border border-brown-border text-brown text-sm font-semibold hover:bg-blush transition-colors">
+                            Explore Figures Archive
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- FIGURE DETAIL MODAL (HISTORY & PERSONAL LIFE)             -->
+    <!-- ========================================================= -->
+    <div id="figure-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-brown/50 backdrop-blur-xs modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-figure-name">
+        <div class="bg-pure w-full max-w-3xl max-h-[90vh] rounded-3xl border border-brown-border shadow-2xl flex flex-col overflow-hidden modal-panel">
+            
+            <!-- Modal Top Bar -->
+            <div class="flex items-center justify-between px-6 py-4 bg-cream border-b border-brown-border shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="modal-category-badge" class="px-3 py-1 rounded-full bg-blush text-brown text-xs font-bold">
+                        Category
+                    </span>
+                    <span id="modal-years-badge" class="text-xs font-medium text-brown-muted">
+                        1900 – 1967
+                    </span>
+                </div>
+                <button onclick="closeModal()" class="p-2 rounded-full text-brown hover:bg-blush transition-colors focus:outline-none" aria-label="Close modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Content -->
+            <div class="p-6 sm:p-8 overflow-y-auto custom-scroll space-y-6">
+                <!-- Header Identity -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-5">
+                    <div id="modal-monogram" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-brown text-gold-bright flex items-center justify-center editorial-title text-2xl sm:text-3xl font-bold shrink-0 shadow-sm">
+                        LH
+                    </div>
+                    <div>
+                        <h2 id="modal-figure-name" class="editorial-title text-2xl sm:text-3xl font-bold text-brown">
+                            Langston Hughes
+                        </h2>
+                        <p id="modal-figure-role" class="text-sm sm:text-base font-medium text-crimson mt-0.5">
+                            Poet, Novelist, Playwright &amp; Columnist
+                        </p>
+                        <p id="modal-birthplace" class="text-xs text-brown-muted mt-1">
+                            Born in Joplin, Missouri
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Famous Quote Callout -->
+                <blockquote class="p-4 sm:p-5 rounded-2xl bg-cream border-l-4 border-gold-bright">
+                    <p id="modal-quote" class="editorial-title italic text-base sm:text-lg text-brown leading-relaxed">
+                        "Hold fast to dreams, for if dreams die, life is a broken-winged bird that cannot fly."
+                    </p>
+                </blockquote>
+
+                <!-- Dual Lens Switcher inside Modal -->
+                <div class="flex border-b border-brown-border gap-6">
+                    <button id="tab-btn-history" onclick="switchModalSubTab('history')" class="pb-3 text-sm font-bold border-b-2 border-crimson text-crimson transition-colors">
+                        Historical Impact &amp; Legacy
+                    </button>
+                    <button id="tab-btn-personal" onclick="switchModalSubTab('personal')" class="pb-3 text-sm font-bold border-b-2 border-transparent text-brown-muted hover:text-brown transition-colors">
+                        Personal Life &amp; Upbringing
+                    </button>
+                </div>
+
+                <!-- Sub-Tab 1: Historical Impact -->
+                <div id="modal-content-history" class="space-y-4 text-sm sm:text-base text-brown-light leading-relaxed">
+                    <p id="modal-history-text"></p>
+                    <div class="pt-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-brown mb-2">Landmark Works &amp; Contributions</h4>
+                        <div id="modal-works-list" class="flex flex-wrap gap-2">
+                            <!-- Work tags injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Tab 2: Personal Life -->
+                <div id="modal-content-personal" class="hidden space-y-4 text-sm sm:text-base text-brown-light leading-relaxed">
+                    <p id="modal-personal-text"></p>
+                    <div class="p-4 rounded-xl bg-blush/40 border border-blush-medium/60">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-crimson mb-1">Intimate Detail &amp; Character</h4>
+                        <p id="modal-personal-highlight" class="text-sm text-brown"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Navigation (Prev / Next Figure) -->
+            <div class="flex items-center justify-between px-6 py-3.5 bg-cream border-t border-brown-border shrink-0">
+                <button onclick="navigateModal(-1)" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-brown hover:text-crimson transition-colors">
+                    <span>←</span> Previous Figure
+                </button>
+                <span id="modal-index-indicator" class="text-xs text-brown-muted font-medium">1 of 12</span>
+                <button onclick="navigateModal(1)" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-brown hover:text-crimson transition-colors">
+                    Next Figure <span>→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimalist Footer -->
+    <footer class="bg-pure border-t border-brown-border mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brown-muted">
+            <p class="font-medium text-brown">The Harlem Renaissance Interactive Archive</p>
+            <p>Celebrating History, Artistry &amp; Human Stories (1918–1937)</p>
+        </div>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- APPLICATION DATA & INTERACTIVE LOGIC                      -->
+    <!-- ========================================================= -->
+    <script>
+        // Comprehensive Dataset: 12 Iconic Figures with Historical Impact & Personal Lives
+        const figuresData = [
+            {
+                id: 'langston-hughes',
+                name: 'Langston Hughes',
+                monogram: 'LH',
+                role: 'Poet, Novelist, Playwright & Columnist',
+                category: 'Literature & Poetry',
+                years: '1901 – 1967',
+                birthplace: 'Joplin, Missouri',
+                summary: 'The "Poet Laureate of Harlem" who pioneered jazz poetry and captured the dignity and joy of everyday working-class Black life.',
+                quote: '"Hold fast to dreams, for if dreams die, life is a broken-winged bird that cannot fly."',
+                history: 'Langston Hughes was one of the earliest innovators of "jazz poetry," infusing his verses with the syncopated rhythms of blues and jazz clubs along 135th Street. Unlike writers who sought to appeal primarily to elite literary circles, Hughes wrote unapologetically about working-class African Americans—porters, cooks, blues singers, and dreamers. His 1926 essay "The Negro Artist and the Racial Mountain" became the artistic manifesto of the younger Harlem Renaissance generation.',
+                works: ['The Weary Blues (1926)', 'Montage of a Dream Deferred (1951)', 'Not Without Laughter (1930)', 'The Negro Speaks of Rivers'],
+                personal: 'Hughes experienced a lonely, transient childhood after his parents separated shortly after his birth; his father moved to Mexico, and his mother traveled seeking work. Raised largely by his maternal grandmother, Mary Leary, in Lawrence, Kansas, he developed a deep love of books and oral history. Before achieving literary fame, he worked as a messboy on merchant ships traveling to Africa and Europe, and as a busboy in Washington, D.C., where he famously slipped three poems beside poet Vachel Lindsay’s dinner plate.',
+                personalHighlight: 'Despite his fame, Hughes never married and lived modestly in a Harlem brownstone on East 127th Street for his final twenty years, mentoring emerging Black writers until his passing.'
+            },
+            {
+                id: 'zora-neale-hurston',
+                name: 'Zora Neale Hurston',
+                monogram: 'ZH',
+                role: 'Novelist, Folklorist & Anthropologist',
+                category: 'Literature & Poetry',
+                years: '1891 – 1960',
+                birthplace: 'Notasulga, Alabama (Raised in Eatonville, Florida)',
+                summary: 'Celebrated author and trained anthropologist who preserved Southern Black folklore and penned the classic novel Their Eyes Were Watching God.',
+                quote: '"There are years that ask questions and years that answer."',
+                history: 'Arriving in New York in 1925 with just $1.50 in her pocket, Zora Neale Hurston quickly became a magnetic presence in Harlem’s literary salons. Studying anthropology at Barnard College under Franz Boas, she traveled across the American South and the Caribbean recording folktales, spirituals, and hoodoo traditions. Her 1937 masterpiece, Their Eyes Were Watching God, elevated Southern Black vernacular into lyrical high literature and centered Black female self-discovery.',
+                works: ['Their Eyes Were Watching God (1937)', 'Mules and Men (1935)', 'Sweat (1926)', 'Dust Tracks on a Road (1942)'],
+                personal: 'Hurston grew up in Eatonville, Florida—one of the first self-governing all-Black towns in America—which gave her an unshakeable sense of self-worth free from daily white intimidation. After her mother died when Zora was thirteen, she worked as a maid and wardrobe girl to put herself through school, famously shaving ten years off her true birth year so she could qualify for free public high school education. Fiercely independent, she married three times briefly, refusing to let any marriage compromise her research expeditions.',
+                personalHighlight: 'Known for her theatrical wit, colorful hats, and infectious storytelling, Hurston later faced financial hardship and died in obscurity in 1960 until Alice Walker famously located and marked her Florida grave in 1973.'
+            },
+            {
+                id: 'duke-ellington',
+                name: 'Duke Ellington',
+                monogram: 'DE',
+                role: 'Composer, Pianist & Big Band Leader',
+                category: 'Music & Jazz',
+                years: '1899 – 1974',
+                birthplace: 'Washington, D.C.',
+                summary: 'Architectural genius of orchestral jazz whose residency at Harlem’s Cotton Club broadcast the sound of Harlem across the nation.',
+                quote: '"Art is dangerous. It is one of the attractions: when it ceases to be dangerous you don’t want it."',
+                history: 'Edward Kennedy "Duke" Ellington elevated jazz from dance-hall entertainment to an internationally acclaimed concert art form. Leading his orchestra at Harlem’s famed Cotton Club from 1927 to 1931, Ellington’s live radio broadcasts brought the "jungle style" and sophisticated harmonies of Harlem jazz into millions of American living rooms. Over a fifty-year career, he composed more than 1,000 works, treating individual musicians in his band as unique tonal colors.',
+                works: ['Mood Indigo (1930)', 'It Don’t Mean a Thing (1931)', 'Take the "A" Train (1941)', 'Black, Brown and Beige (1943)'],
+                personal: 'Raised in a middle-class Washington, D.C. household by parents who instilled impeccable manners and pride, young Edward earned the nickname "Duke" from childhood friends because of his dapper wardrobe and aristocratic poise. Initially more interested in baseball and visual art than piano lessons, he fell in love with ragtime as a teenager. He married his high school sweetheart, Edna Thompson, at age nineteen, and their son Mercer Ellington later became a trumpeter and manager of the family orchestra.',
+                personalHighlight: 'A nocturnal workaholic, Ellington frequently composed scores on the back of menus, train tickets, and hotel stationery while touring on Pullman sleeper cars.'
+            },
+            {
+                id: 'bessie-smith',
+                name: 'Bessie Smith',
+                monogram: 'BS',
+                role: 'Vocalist & "Empress of the Blues"',
+                category: 'Music & Jazz',
+                years: '1894 – 1937',
+                birthplace: 'Chattanooga, Tennessee',
+                summary: 'The highest-paid Black entertainer of the 1920s, whose commanding contralto voice defined the classic blues era.',
+                quote: '"It’s a long old road, but I’m gonna find the end."',
+                history: 'Bessie Smith bridged Southern folk blues and urban Harlem sophistication, becoming Columbia Records’ top-selling artist in the 1920s and saving the label from bankruptcy. Singing without a microphone, her thunderous, emotionally raw voice could fill vast theaters. She collaborated with jazz legends including Louis Armstrong and Fletcher Henderson, giving voice to themes of heartbreak, resilience, poverty, and female autonomy.',
+                works: ['Downhearted Blues (1923)', 'St. Louis Blues (1925)', 'Backwater Blues (1927)', 'Nobody Knows You When You’re Down and Out'],
+                personal: 'Orphaned by age nine in impoverished Chattanooga, Smith sang on street corners with her brother Andrew playing guitar to earn pennies for her siblings. Discovered by Ma Rainey while touring with the Rabbit’s Foot Minstrels, Bessie rose from bitter poverty to own her own custom railroad car for touring. Her personal life was tumultuous—marked by a stormy marriage to Jack Gee, generosity toward struggling musicians, and courageous confrontations with segregation.',
+                personalHighlight: 'Legend recounts that in 1927, Bessie single-handedly chased away Ku Klux Klan members attempting to collapse her tent show in Concord, North Carolina.'
+            },
+            {
+                id: 'augusta-savage',
+                name: 'Augusta Savage',
+                monogram: 'AS',
+                role: 'Sculptor, Educator & Community Leader',
+                category: 'Visual Arts',
+                years: '1892 – 1962',
+                birthplace: 'Green Cove Springs, Florida',
+                summary: 'Trailblazing sculptor and beloved Harlem art teacher who sculpted portrait busts of Renaissance leaders and mentored Jacob Lawrence.',
+                quote: '"If I can inspire one of these youngsters to develop the talent I know they possess, then my monument will be in their work."',
+                history: 'Augusta Savage broke racial barriers in fine art sculpting and championed accessible arts education in Harlem. After creating acclaimed portrait busts of W.E.B. Du Bois and Marcus Garvey, she established the Savage Studio of Arts and Crafts in a Harlem basement, offering free classes to hundreds of young artists. In 1939, she became the first African American woman commissioned to create a major sculpture—The Harp—for the New York World’s Fair.',
+                works: ['Gamin (1929)', 'Lift Every Voice and Sing / The Harp (1939)', 'Bust of W.E.B. Du Bois (1923)', 'Realization (1938)'],
+                personal: 'As a child in rural Florida, Savage dug natural red clay from the ground to sculpt ducks and farm animals—an activity her strict Methodist minister father initially punished her for, believing sculpted figures were "graven images." Undeterred, she moved to New York in 1921 with $4.60, studying at Cooper Union while working as an apartment caretaker. When a French summer art program revoked her scholarship in 1923 solely because of her race, her public protest sparked national headlines.',
+                personalHighlight: 'Savage sacrificed much of her own sculpting career during the Great Depression to secure WPA funding and studio space for younger artists like Jacob Lawrence and Norman Lewis.'
+            },
+            {
+                id: 'aaron-douglas',
+                name: 'Aaron Douglas',
+                monogram: 'AD',
+                role: 'Painter, Illustrator & Muralist',
+                category: 'Visual Arts',
+                years: '1899 – 1979',
+                birthplace: 'Topeka, Kansas',
+                summary: 'The "Father of Black American Art," famous for blending Art Deco modernism with West African sculptural silhouettes.',
+                quote: '"Our problem is to conceive, develop, establish an art era. Not white art painting black... let’s bare our arms and plunge them deep through laughter, through pain, through sorrow."',
+                history: 'Aaron Douglas created the signature visual aesthetic of the Harlem Renaissance. Moving to Harlem in 1925, he illustrated the covers of Crisis, Opportunity, and Alain Locke’s landmark anthology The New Negro. His distinctive style combined flat, geometric Art Deco forms, concentric light waves, and stylized silhouettes inspired by African masks—visually linking African heritage to the modern African American experience.',
+                works: ['Aspects of Negro Life Mural Series (1934)', 'Song of the Towers (1934)', 'Let My People Go (1935)', 'Illustrations for God’s Trombones (1927)'],
+                personal: 'Born in Topeka, Kansas, Douglas was inspired by his mother’s love of painting and worked in Detroit auto plants and on the Union Pacific Railroad to finance his fine arts degree at the University of Nebraska. He married educator Alta Sawyer in 1926, and their Harlem apartment at 409 Edgecombe Avenue became an informal salon for artists and writers. Later in life, he founded the Art Department at Fisk University in Nashville, teaching for nearly three decades.',
+                personalHighlight: 'Douglas’s four-panel mural Aspects of Negro Life remains preserved on the walls of the Schomburg Center for Research in Black Culture in Harlem.'
+            },
+            {
+                id: 'web-du-bois',
+                name: 'W.E.B. Du Bois',
+                monogram: 'WD',
+                role: 'Sociologist, Historian, Editor & Civil Rights Leader',
+                category: 'Thinkers & Activists',
+                years: '1868 – 1963',
+                birthplace: 'Great Barrington, Massachusetts',
+                summary: 'Co-founder of the NAACP and editor of The Crisis, who published and championed dozens of young Harlem Renaissance writers.',
+                quote: '"The problem of the twentieth century is the problem of the color-line."',
+                history: 'As founding editor of the NAACP’s magazine The Crisis (1910–1934), W.E.B. Du Bois turned the publication into an essential literary and artistic launchpad for the Harlem Renaissance. Under his editorial direction—and literary editor Jessie Redmon Fauset—The Crisis published early works by Langston Hughes, Countee Cullen, and Nella Larsen, and hosted annual literary contests. Du Bois argued passionately that Black art should serve both beauty and the struggle for full civil equality.',
+                works: ['The Souls of Black Folk (1903)', 'Editor of The Crisis (1910–1934)', 'Darkwater (1920)', 'Black Reconstruction in America (1935)'],
+                personal: 'Raised in a relatively integrated New England town by his mother after his father departed early, Du Bois was the first African American to earn a Ph.D. from Harvard University. Known for his impeccable three-piece suits, trimmed goatee, and formidable intellectual rigor, he experienced profound personal grief when his toddler son Burghardt died in Atlanta after being denied treatment at white hospitals. He was married to Nina Gomer for 53 years, and later to writer Shirley Graham.',
+                personalHighlight: 'At age 93, disillusioned with the pace of racial progress in the U.S., Du Bois relocated to Accra, Ghana, at the invitation of President Kwame Nkrumah to edit the Encyclopedia Africana.'
+            },
+            {
+                id: 'josephine-baker',
+                name: 'Josephine Baker',
+                monogram: 'JB',
+                role: 'Dancer, Singer, WWII Spy & Civil Rights Activist',
+                category: 'Stage & Screen',
+                years: '1906 – 1975',
+                birthplace: 'St. Louis, Missouri',
+                summary: 'Electric performer who rose from Harlem’s Shuffle Along chorus line to become an international icon in Paris and a decorated French Resistance hero.',
+                quote: '"Surely the day will come when color means nothing more than the skin tone, when religion is seen uniquely as a way to speak one’s soul."',
+                history: 'Beginning her career in the chorus line of the 1921 Broadway sensation Shuffle Along and performing at Harlem’s Plantation Club, Josephine Baker captivated audiences with her comedic cross-eyed expressions and high-voltage Charleston dancing. Moving to Paris in 1925 to star in La Revue Nègre, she became the highest-paid Black female entertainer in Europe, shattering racial stereotypes on international stages and later refusing to perform for segregated audiences in the United States.',
+                works: ['Shuffle Along (1921)', 'La Revue Nègre (1925)', 'Zouzou (1934)', '1963 March on Washington Speech'],
+                personal: 'Born Freda Josephine McDonald in St. Louis poverty, she survived the horrific 1917 East St. Louis race riots as an eleven-year-old child—a trauma that shaped her lifelong fight against racism. Married briefly at ages 13 and 15 before finding independence on stage, Baker became a French citizen and served bravely in the French Resistance during World War II, smuggling intelligence written in invisible ink on her sheet music.',
+                personalHighlight: 'In the 1950s, Baker adopted twelve children from diverse countries and religions—calling them her "Rainbow Tribe"—to prove that people of all backgrounds could live together as siblings.'
+            },
+            {
+                id: 'claude-mckay',
+                name: 'Claude McKay',
+                monogram: 'CM',
+                role: 'Poet & Novelist',
+                category: 'Literature & Poetry',
+                years: '1889 – 1948',
+                birthplace: 'Sunny Ville, Clarendon Parish, Jamaica',
+                summary: 'Jamaican-born poet whose defiant 1919 sonnet "If We Must Die" ignited the militant spirit of the Harlem Renaissance.',
+                quote: '"If we must die, let it not be like hogs / Hunted and penned in an inglorious spot..."',
+                history: 'Claude McKay’s fiery 1919 sonnet "If We Must Die," written in response to the "Red Summer" anti-Black riots across America, became the rallying cry of the New Negro Movement. Blending classical Shakespearean sonnet structure with radical political defiance, McKay also wrote Home to Harlem (1928), the first bestselling novel by a Black author, portraying Harlem’s nightlife, cabarets, and working-class vitality without apology.',
+                works: ['If We Must Die (1919)', 'Harlem Shadows (1922)', 'Home to Harlem (1928)', 'Banjo (1929)'],
+                personal: 'Born to peasant farmers in rural Jamaica, McKay initially worked as a constable in Kingston, where witnessing colonial brutality deeply radicalized him. He immigrated to the United States in 1912 to study agronomy at Tuskegee Institute before moving to Harlem. A restless cosmopolitan traveler, McKay spent twelve years living across London, Moscow, Paris, and Tangier, Morocco, rarely staying in one place long enough to settle.',
+                personalHighlight: 'In his final years in Chicago, impoverished and battling heart disease, McKay converted to Catholicism and taught youth programs before passing away at age 58.'
+            },
+            {
+                id: 'louis-armstrong',
+                name: 'Louis Armstrong',
+                monogram: 'LA',
+                role: 'Trumpeter, Vocalist & Jazz Innovator',
+                category: 'Music & Jazz',
+                years: '1901 – 1971',
+                birthplace: 'New Orleans, Louisiana',
+                summary: 'Revolutionary trumpeter whose virtuosic soloing and gravelly scat singing transformed jazz into a solo-driven art form.',
+                quote: '"What we play is life."',
+                history: 'Arriving in New York in 1924 to join Fletcher Henderson’s Orchestra at Harlem’s Roseland Ballroom, Louis "Satchmo" Armstrong revolutionized modern music. Before Armstrong, jazz emphasized collective ensemble playing; his soaring, rhythmically daring trumpet solos and improvisational scat vocals placed the individual soloist at the center of American popular music.',
+                works: ['West End Blues (1928)', 'Heebie Jeebies (1926)', 'Ain’t Misbehavin’ (1929)', 'What a Wonderful World (1967)'],
+                personal: 'Born into extreme poverty in the "Battlefield" neighborhood of New Orleans, Armstrong was raised by his grandmother and mother, working on a coal cart as a boy. Sent to the Colored Waif’s Home for Boys at age eleven after firing a blank pistol on New Year’s Eve, he learned to play the cornet in the home’s brass band—a turning point he credited with saving his life. Warm, generous, and deeply disciplined, he spent decades living in a modest brick home in Corona, Queens.',
+                personalHighlight: 'Armstrong was a prolific writer who carried a typewriter on tour, typing thousands of letters, memoirs, and personal reflections—and famously spoke out against President Eisenhower during the 1957 Little Rock school integration crisis.'
+            },
+            {
+                id: 'nella-larsen',
+                name: 'Nella Larsen',
+                monogram: 'NL',
+                role: 'Novelist & Librarian',
+                category: 'Literature & Poetry',
+                years: '1891 – 1964',
+                birthplace: 'Chicago, Illinois',
+                summary: 'Acclaimed psychological novelist who explored racial identity, "passing," and complex Black womanhood in Quicksand and Passing.',
+                quote: '"It’s funny about ’passing.’ We disapprove of it and at the same time condone it. It excites our contempt and yet we rather admire it."',
+                history: 'Nella Larsen was one of the most sophisticated prose stylists of the Harlem Renaissance. Working as a librarian at the 135th Street branch of the New York Public Library (now the Schomburg Center), she published two psychologically rich novels—Quicksand (1928) and Passing (1929)—examining the inner lives of biracial, middle-class women navigating race, class, desire, and social expectations.',
+                works: ['Quicksand (1928)', 'Passing (1929)', 'Sanctuary (1930)', 'Freedom (1926)'],
+                personal: 'Born in Chicago to a Danish immigrant mother and a mixed-race father from the Danish West Indies, Larsen experienced painful alienation within her own family after her mother remarried a white man and had a white daughter. Trained as a nurse at Lincoln Hospital in the Bronx before becoming the first Black woman to graduate from the New York Public Library’s library school, she married physicist Elmer Imes in 1919.',
+                personalHighlight: 'Following a painful divorce and an unfounded plagiarism controversy in 1930, Larsen quietly withdrew from literary circles and returned to her original profession, working as a supervising nurse in Brooklyn for thirty years.'
+            },
+            {
+                id: 'james-van-der-zee',
+                name: 'James Van Der Zee',
+                monogram: 'JV',
+                role: 'Portrait & Documentary Photographer',
+                category: 'Visual Arts',
+                years: '1886 – 1983',
+                birthplace: 'Lenox, Massachusetts',
+                summary: 'Harlem’s premier studio photographer who chronicled the elegance, pride, and daily milestones of the Black middle class.',
+                quote: '"I tried to see that every picture was better-looking than the person."',
+                history: 'Opening his Guarantee Photo Studio on 135th Street in 1916, James Van Der Zee became the visual historian of the Harlem Renaissance. Over five decades, he photographed weddings, funerals, fraternal lodges, Marcus Garvey’s UNIA parades, and cultural icons like Countee Cullen and Bill "Bojangles" Robinson. Using painted backdrops, dramatic lighting, and meticulous negative retouching, he preserved the dignity and aspiration of Harlem residents.',
+                works: ['Couple in Raccoon Coats (1932)', 'Marcus Garvey Parade Series (1924)', 'Harlem Book of the Dead (1978)', 'Portrait of Florence Mills'],
+                personal: 'Growing up in Lenox, Massachusetts, Van Der Zee bought his first camera at age fourteen by selling packets of perfumed sachet, converting his family’s closet into a darkroom. Also an accomplished violinist and pianist, he played in Fletcher Henderson’s early dance bands in New York before dedicating himself fully to photography alongside his second wife, Gaynella Greenlee.',
+                personalHighlight: 'After decades of quiet obscurity following the rise of handheld cameras, Van Der Zee was rediscovered at age 82 during the Metropolitan Museum of Art’s 1969 "Harlem on My Mind" exhibition, resuming portrait sessions into his nineties.'
+            }
+        ];
+
+        // Quiz Questions Dataset (Covering both History and Personal Lives)
+        const quizQuestions = [
+            {
+                question: 'Which Zora Neale Hurston hometown—one of the first self-governing all-Black towns in the U.S.—deeply shaped her fearless sense of identity?',
+                options: [
+                    'Joplin, Missouri',
+                    'Eatonville, Florida',
+                    'Great Barrington, Massachusetts',
+                    'Topeka, Kansas'
+                ],
+                correctIndex: 1,
+                explanation: 'Hurston grew up in Eatonville, Florida, an incorporated all-Black town where Black citizens served as mayor, sheriff, and judges—instilling her lifelong pride and independence.'
+            },
+            {
+                question: 'How did sculptor Augusta Savage impact the next generation of Harlem Renaissance artists during the Great Depression?',
+                options: [
+                    'She founded a free Harlem art studio and secured WPA spaces for young artists like Jacob Lawrence',
+                    'She published the monthly literary magazine The Crisis',
+                    'She composed orchestral jazz suites at the Cotton Club',
+                    'She directed Broadway’s hit musical Shuffle Along'
+                ],
+                correctIndex: 0,
+                explanation: 'Augusta Savage established the Savage Studio of Arts and Crafts in Harlem, sacrificing much of her own sculpting time to teach and secure funding for younger artists.'
+            },
+            {
+                question: 'What visual style did Aaron Douglas pioneer to illustrate books like Alain Locke’s "The New Negro"?',
+                options: [
+                    'Photorealistic oil landscapes of New England',
+                    'Geometric Art Deco modernism blended with West African sculptural silhouettes',
+                    'Classical Renaissance marble carving',
+                    'Abstract drip painting'
+                ],
+                correctIndex: 1,
+                explanation: 'Aaron Douglas fused geometric Art Deco forms and concentric light waves with silhouettes inspired by West African masks, creating the signature visual aesthetic of the movement.'
+            },
+            {
+                question: 'In addition to her fame as an international dancer and singer in Paris, what heroic role did Josephine Baker play during World War II?',
+                options: [
+                    'She served as a spy for the French Resistance, smuggling intelligence in her sheet music',
+                    'She edited an underground newspaper in Harlem',
+                    'She worked as a field surgeon in London',
+                    'She designed camouflage uniforms for the U.S. Navy'
+                ],
+                correctIndex: 0,
+                explanation: 'Josephine Baker risked her life as a French Resistance intelligence agent, carrying secret military notes written in invisible ink on her musical scores.'
+            },
+            {
+                question: 'Which profession did novelist Nella Larsen hold both at the 135th Street branch in Harlem and for thirty years after stepping back from writing?',
+                options: [
+                    'Orchestra conductor and pianist',
+                    'Portrait photographer and darkroom technician',
+                    'Librarian and registered nurse',
+                    'Supreme Court legal clerk'
+                ],
+                correctIndex: 2,
+                explanation: 'Nella Larsen trained as a nurse in the Bronx, became the first Black graduate of the NYPL library school (working at Harlem’s 135th Street branch), and later returned to nursing for thirty years.'
+            }
+        ];
+
+        // Application State
+        let currentCategory = 'All';
+        let currentSearchQuery = '';
+        let currentFilteredFigures = [...figuresData];
+        let activeModalIndex = 0;
+
+        // Quiz State
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        // Initialize App on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFiguresGrid();
+            setupEventListeners();
+            loadQuizQuestion();
+        });
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Category Filter Buttons
+            const catButtons = document.querySelectorAll('.cat-btn');
+            catButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    catButtons.forEach(b => {
+                        b.classList.remove('bg-crimson', 'text-pure', 'font-semibold');
+                        b.classList.add('bg-cream', 'text-brown', 'font-medium');
+                    });
+                    btn.classList.remove('bg-cream', 'text-brown', 'font-medium');
+                    btn.classList.add('bg-crimson', 'text-pure', 'font-semibold');
+                    
+                    currentCategory = btn.getAttribute('data-cat');
+                    filterFigures();
+                });
+            });
+
+            // Live Search Input
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', (e) => {
+                currentSearchQuery = e.target.value.trim().toLowerCase();
+                filterFigures();
+            });
+
+            // Close modal on backdrop click or Escape key
+            const modal = document.getElementById('figure-modal');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (!modal.classList.contains('hidden')) {
+                    if (e.key === 'Escape') closeModal();
+                    if (e.key === 'ArrowRight') navigateModal(1);
+                    if (e.key === 'ArrowLeft') navigateModal(-1);
+                }
+            });
+        }
+
+        // Primary Navigation Tab Switcher
+        function switchTab(tabName) {
+            const views = ['figures', 'overview', 'quiz'];
+            views.forEach(view => {
+                const viewEl = document.getElementById(`view-${view}`);
+                const navEl = document.getElementById(`nav-${view}`);
+                if (view === tabName) {
+                    viewEl.classList.remove('hidden');
+                    navEl.classList.remove('text-brown', 'hover:bg-blush/60');
+                    navEl.classList.add('bg-brown', 'text-pure', 'shadow-sm');
+                } else {
+                    viewEl.classList.add('hidden');
+                    navEl.classList.remove('bg-brown', 'text-pure', 'shadow-sm');
+                    navEl.classList.add('text-brown', 'hover:bg-blush/60');
+                }
+            });
+        }
+
+        // Filter Figures Logic
+        function filterFigures() {
+            currentFilteredFigures = figuresData.filter(fig => {
+                const matchesCategory = currentCategory === 'All' || fig.category === currentCategory;
+                const searchableText = `${fig.name} ${fig.role} ${fig.category} ${fig.summary} ${fig.history} ${fig.personal}`.toLowerCase();
+                const matchesSearch = currentSearchQuery === '' || searchableText.includes(currentSearchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            const resetBtn = document.getElementById('reset-filters-btn');
+            if (currentCategory !== 'All' || currentSearchQuery !== '') {
+                resetBtn.classList.remove('hidden');
+            } else {
+                resetBtn.classList.add('hidden');
+            }
+
+            renderFiguresGrid();
+        }
+
+        // Reset Filters
+        function resetFilters() {
+            currentCategory = 'All';
+            currentSearchQuery = '';
+            document.getElementById('search-input').value = '';
+            
+            const catButtons = document.querySelectorAll('.cat-btn');
+            catButtons.forEach(b => {
+                if (b.getAttribute('data-cat') === 'All') {
+                    b.classList.remove('bg-cream', 'text-brown', 'font-medium');
+                    b.classList.add('bg-crimson', 'text-pure', 'font-semibold');
+                } else {
+                    b.classList.remove('bg-crimson', 'text-pure', 'font-semibold');
+                    b.classList.add('bg-cream', 'text-brown', 'font-medium');
+                }
+            });
+
+            filterFigures();
+        }
+
+        // Render Figure Cards
+        function renderFiguresGrid() {
+            const grid = document.getElementById('figures-grid');
+            const emptyState = document.getElementById('empty-state');
+            const counter = document.getElementById('results-counter');
+
+            grid.innerHTML = '';
+
+            if (currentFilteredFigures.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                counter.textContent = '0 figures matched your filter';
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            counter.textContent = `Showing ${currentFilteredFigures.length} ${currentFilteredFigures.length === 1 ? 'figure' : 'figures'} — select any card to explore their history & personal life`;
+
+            currentFilteredFigures.forEach((fig, idx) => {
+                const card = document.createElement('article');
+                card.className = 'figure-card bg-pure rounded-2xl border border-brown-border p-6 flex flex-col justify-between cursor-pointer group';
+                card.onclick = () => openModal(idx);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-cream border border-brown-border group-hover:bg-brown group-hover:text-gold-bright transition-colors flex items-center justify-center editorial-title text-lg font-bold text-brown">
+                                ${fig.monogram}
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full bg-blush/70 text-brown text-xs font-semibold">
+                                ${fig.category}
+                            </span>
+                        </div>
+
+                        <h3 class="editorial-title text-xl font-bold text-brown group-hover:text-crimson transition-colors">
+                            ${fig.name}
+                        </h3>
+                        <p class="text-xs font-semibold text-crimson mt-0.5 mb-3">
+                            ${fig.role} • <span class="text-brown-muted font-normal">${fig.years}</span>
+                        </p>
+
+                        <p class="text-sm text-brown-light leading-relaxed line-clamp-3">
+                            ${fig.summary}
+                        </p>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-brown-border/70 flex items-center justify-between text-xs font-semibold">
+                        <span class="text-brown-muted">History &amp; Personal Life</span>
+                        <span class="text-crimson group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read Profile <span>→</span>
+                        </span>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Open Figure Detail Modal
+        function openModal(filteredIndex) {
+            activeModalIndex = filteredIndex;
+            populateModalContent(currentFilteredFigures[activeModalIndex]);
+            switchModalSubTab('history');
+
+            const modal = document.getElementById('figure-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close Modal
+        function closeModal() {
+            const modal = document.getElementById('figure-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        // Navigate Previous / Next inside Modal
+        function navigateModal(direction) {
+            const total = currentFilteredFigures.length;
+            activeModalIndex = (activeModalIndex + direction + total) % total;
+            populateModalContent(currentFilteredFigures[activeModalIndex]);
+        }
+
+        // Populate Modal Fields
+        function populateModalContent(fig) {
+            document.getElementById('modal-category-badge').textContent = fig.category;
+            document.getElementById('modal-years-badge').textContent = fig.years;
+            document.getElementById('modal-monogram').textContent = fig.monogram;
+            document.getElementById('modal-figure-name').textContent = fig.name;
+            document.getElementById('modal-figure-role').textContent = fig.role;
+            document.getElementById('modal-birthplace').textContent = `Origin: ${fig.birthplace}`;
+            document.getElementById('modal-quote').textContent = fig.quote;
+
+            // History Tab Content
+            document.getElementById('modal-history-text').textContent = fig.history;
+            const worksContainer = document.getElementById('modal-works-list');
+            worksContainer.innerHTML = '';
+            fig.works.forEach(work => {
+                const badge = document.createElement('span');
+                badge.className = 'px-3 py-1 rounded-full bg-gold-soft/80 border border-gold-bright/50 text-brown text-xs font-semibold';
+                badge.textContent = work;
+                worksContainer.appendChild(badge);
+            });
+
+            // Personal Life Tab Content
+            document.getElementById('modal-personal-text').textContent = fig.personal;
+            document.getElementById('modal-personal-highlight').textContent = fig.personalHighlight;
+
+            // Counter
+            document.getElementById('modal-index-indicator').textContent = `${activeModalIndex + 1} of ${currentFilteredFigures.length}`;
+        }
+
+        // Switch between Historical Impact & Personal Life inside Modal
+        function switchModalSubTab(subTab) {
+            const btnHistory = document.getElementById('tab-btn-history');
+            const btnPersonal = document.getElementById('tab-btn-personal');
+            const contentHistory = document.getElementById('modal-content-history');
+            const contentPersonal = document.getElementById('modal-content-personal');
+
+            if (subTab === 'history') {
+                btnHistory.classList.add('border-crimson', 'text-crimson');
+                btnHistory.classList.remove('border-transparent', 'text-brown-muted');
+                btnPersonal.classList.remove('border-crimson', 'text-crimson');
+                btnPersonal.classList.add('border-transparent', 'text-brown-muted');
+
+                contentHistory.classList.remove('hidden');
+                contentPersonal.classList.add('hidden');
+            } else {
+                btnPersonal.classList.add('border-crimson', 'text-crimson');
+                btnPersonal.classList.remove('border-transparent', 'text-brown-muted');
+                btnHistory.classList.remove('border-crimson', 'text-crimson');
+                btnHistory.classList.add('border-transparent', 'text-brown-muted');
+
+                contentPersonal.classList.remove('hidden');
+                contentHistory.classList.add('hidden');
+            }
+        }
+
+        // =========================================================
+        // INTERACTIVE QUIZ LOGIC
+        // =========================================================
+        function loadQuizQuestion() {
+            quizAnswered = false;
+            const qData = quizQuestions[currentQuizIndex];
+
+            document.getElementById('quiz-progress-badge').textContent = `Question ${currentQuizIndex + 1} of ${quizQuestions.length}`;
+            document.getElementById('quiz-question-text').textContent = qData.question;
+            document.getElementById('quiz-feedback-box').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('quiz-options-container');
+            optionsContainer.innerHTML = '';
+
+            qData.options.forEach((optionText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-opt-btn w-full text-left p-4 rounded-xl border border-brown-border bg-cream hover:bg-blush/50 text-sm sm:text-base font-medium text-brown transition-all flex items-center justify-between gap-3';
+                btn.innerHTML = `
+                    <span>${optionText}</span>
+                    <span class="opt-status text-xs font-bold"></span>
+                `;
+                btn.onclick = () => selectQuizAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selectedIndex, clickedBtn) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const qData = quizQuestions[currentQuizIndex];
+            const allBtns = document.querySelectorAll('.quiz-opt-btn');
+
+            allBtns.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-blush/50');
+                const statusEl = btn.querySelector('.opt-status');
+
+                if (idx === qData.correctIndex) {
+                    btn.classList.remove('bg-cream', 'border-brown-border');
+                    btn.classList.add('bg-gold-soft', 'border-gold-bright', 'font-bold');
+                    statusEl.textContent = '✓ Correct';
+                    statusEl.classList.add('text-brown');
+                } else if (idx === selectedIndex && selectedIndex !== qData.correctIndex) {
+                    btn.classList.remove('bg-cream', 'border-brown-border');
+                    btn.classList.add('bg-crimson-soft', 'border-crimson');
+                    statusEl.textContent = '✕ Incorrect';
+                    statusEl.classList.add('text-crimson');
+                }
+            });
+
+            if (selectedIndex === qData.correctIndex) {
+                quizScore++;
+            }
+
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            feedbackBox.innerHTML = `<strong class="text-brown">Context:</strong> ${qData.explanation}`;
+            feedbackBox.classList.remove('hidden');
+
+            const nextBtn = document.getElementById('quiz-next-btn');
+            nextBtn.textContent = currentQuizIndex === quizQuestions.length - 1 ? 'See Final Score →' : 'Next Question →';
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < quizQuestions.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-active-area').classList.add('hidden');
+            document.getElementById('quiz-results-area').classList.remove('hidden');
+            document.getElementById('quiz-progress-badge').textContent = 'Completed';
+            document.getElementById('quiz-score-fraction').textContent = `${quizScore}/${quizQuestions.length}`;
+
+            const heading = document.getElementById('quiz-result-heading');
+            const subtext = document.getElementById('quiz-result-subtext');
+
+            if (quizScore === quizQuestions.length) {
+                heading.textContent = 'Harlem Renaissance Scholar!';
+                subtext.textContent = 'A perfect score! You mastered both the artistic milestones and intimate personal histories of the era.';
+            } else if (quizScore >= 3) {
+                heading.textContent = 'Great Work!';
+                subtext.textContent = 'You have a strong grasp of the figures who shaped the New Negro Movement. Explore any remaining profiles in the archive!';
+            } else {
+                heading.textContent = 'Keep Exploring!';
+                subtext.textContent = 'Browse the Notable Figures cards to uncover more behind-the-scenes details about their lives and works.';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-results-area').classList.add('hidden');
+            document.getElementById('quiz-active-area').classList.remove('hidden');
+            loadQuizQuestion();
+        }
+    </script>
+</body>
+</html>
