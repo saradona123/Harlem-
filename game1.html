@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>THE EQUALIZER // Covert Stealth Contracts</title>
+  <style>
+    /* ==========================================================================
+       SIGNATURE PALETTE: RED, BROWN, PINK, YELLOW, WHITE (CLEAN & MINIMAL)
+       ========================================================================== */
+    :root {
+      --white: #ffffff;
+      --pink-bg: #fff5f7;
+      --pink-soft: #fce4ec;
+      --pink-accent: #f48fb1;
+      --pink-deep: #ec407a;
+      --brown-dark: #3e2723;
+      --brown-mid: #5d4037;
+      --brown-muted: #8d6e63;
+      --red-primary: #d32f2f;
+      --yellow-gold: #fbc02d;
+      --yellow-light: #fff9c4;
+      --border: #f8bbd0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--pink-bg);
+      color: var(--brown-dark);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .game-wrapper {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Minimal Top Header & HUD */
+    .hud-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 18px;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(62, 39, 35, 0.05);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      color: var(--brown-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--red-primary);
+      border: 2px solid var(--yellow-gold);
+    }
+
+    .brand-sub {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--brown-muted);
+      margin-top: 2px;
+    }
+
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--brown-muted);
+    }
+
+    .stat-value {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-contract { color: var(--brown-dark); }
+    .stat-mult { color: #d97706; }
+    .stat-partner { color: var(--pink-deep); }
+    .stat-cash { color: var(--red-primary); }
+    .stat-best { color: var(--brown-muted); }
+
+    .mute-btn {
+      background: var(--pink-soft);
+      border: 1.5px solid var(--border);
+      color: var(--brown-dark);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mute-btn:hover {
+      background: var(--yellow-light);
+      border-color: var(--yellow-gold);
+    }
+
+    /* Canvas Arena Frame */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      max-height: 68vh;
+      background-color: var(--white);
+      border: 2.5px solid var(--brown-dark);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 14px 36px rgba(62, 39, 35, 0.12);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      outline: none;
+      touch-action: none;
+    }
+
+    /* Click-Anywhere Start & Game Over Overlays */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 20;
+      cursor: pointer;
+      transition: opacity 0.18s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .overlay-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .badge-stealth {
+      color: var(--brown-dark);
+      background: var(--yellow-light);
+      border: 1.5px solid var(--yellow-gold);
+    }
+
+    .badge-alert {
+      color: var(--white);
+      background: var(--red-primary);
+    }
+
+    .overlay h1 {
+      font-size: clamp(1.7rem, 4vw, 2.45rem);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: var(--brown-dark);
+      margin-bottom: 8px;
+    }
+
+    .overlay p {
+      max-width: 490px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--brown-mid);
+      margin-bottom: 18px;
+    }
+
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(150px, 1fr));
+      gap: 8px 18px;
+      margin-bottom: 20px;
+      text-align: left;
+      background: var(--pink-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--brown-dark);
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .summary-stats {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 20px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      background: var(--pink-bg);
+      border: 1.5px solid var(--border);
+    }
+
+    .primary-btn {
+      background-color: var(--red-primary);
+      color: var(--white);
+      border: 2px solid var(--brown-dark);
+      border-radius: 12px;
+      padding: 13px 28px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.15s ease;
+      box-shadow: 0 6px 0 var(--brown-dark);
+    }
+
+    .primary-btn:hover {
+      background-color: #b71c1c;
+      transform: translateY(-1px);
+    }
+
+    .primary-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 3px 0 var(--brown-dark);
+    }
+
+    /* Bottom Footer / Dash Meter & On-Screen Controls */
+    .hud-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 18px;
+      gap: 12px;
+    }
+
+    .dash-meter-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 210px;
+      max-width: 310px;
+    }
+
+    .dash-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--red-primary);
+      white-space: nowrap;
+    }
+
+    .dash-bar-bg {
+      flex: 1;
+      height: 10px;
+      background-color: var(--pink-soft);
+      border: 1.5px solid var(--brown-dark);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .dash-bar-fill {
+      height: 100%;
+      width: 100%;
+      background-color: var(--red-primary);
+      border-radius: 999px;
+      transition: width 0.05s linear, background-color 0.15s ease;
+    }
+
+    .controls-hint {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--brown-mid);
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--brown-dark);
+      background: var(--yellow-light);
+      border: 1.5px solid var(--brown-dark);
+      border-radius: 5px;
+    }
+
+    /* Quick-Click / Touch Controls Bar */
+    .quick-pad {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pad-btn {
+      background: var(--pink-soft);
+      border: 1.5px solid var(--brown-dark);
+      color: var(--brown-dark);
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .pad-btn:active {
+      background: var(--yellow-gold);
+    }
+
+    .pad-dash {
+      background: var(--yellow-gold);
+      color: var(--brown-dark);
+    }
+
+    @media (max-width: 720px) {
+      .controls-hint { display: none; }
+      .legend-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-wrapper">
+    <!-- TOP HUD -->
+    <header class="hud-header">
+      <div class="brand">
+        <div class="brand-title">
+          <span class="brand-dot"></span>
+          THE EQUALIZER
+        </div>
+        <div class="brand-sub">COVERT REVENGE CONTRACTS // MINIMAL STEALTH</div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-label">Contract</span>
+          <span class="stat-value stat-contract" id="hud-contract">#01</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Multiplier</span>
+          <span class="stat-value stat-mult" id="hud-mult">1.0x</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Partner</span>
+          <span class="stat-value stat-partner" id="hud-partner">LOCKED ($100)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Cash Earned</span>
+          <span class="stat-value stat-cash" id="hud-cash">$0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Best Run</span>
+          <span class="stat-value stat-best" id="hud-best">$0</span>
+        </div>
+        <button class="mute-btn" id="btn-mute" type="button">SFX: ON</button>
+      </div>
+    </header>
+
+    <!-- GAME ARENA -->
+    <div class="canvas-container" id="canvas-container">
+      <canvas id="gameCanvas" tabindex="0"></canvas>
+
+      <!-- CLICK-ANYWHERE START OVERLAY -->
+      <div class="overlay" id="start-overlay">
+        <span class="overlay-badge badge-stealth">Click Anywhere or Press Space / Enter</span>
+        <h1>THE EQUALIZER</h1>
+        <p>
+          Sneak across the room, stay out of the Brown guards' Red vision cones,
+          and trigger your <strong>Cloaked Dash-Strike</strong> to eliminate the Yellow target
+          and collect the $100 payout.
+        </p>
+
+        <div class="legend-grid">
+          <div class="legend-item">
+            <span class="swatch" style="background:#ffffff; border:2.5px solid #d32f2f;"></span>
+            <span>You: Move with WASD / Arrows</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch" style="background:#fbc02d; border:2px solid #3e2723;"></span>
+            <span>Target: Dash-Strike (Spacebar)</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch" style="background:#5d4037;"></span>
+            <span>Guard + Red Vision Cone (Avoid)</span>
+          </div>
+          <div class="legend-item">
+            <span class="swatch" style="background:#f48fb1; border:2px solid #3e2723;"></span>
+            <span>Partner Agent: Joins after $100 win!</span>
+          </div>
+        </div>
+
+        <button class="primary-btn" id="btn-start" type="button">
+          ENTER CONTRACT (SPACE / CLICK)
+        </button>
+      </div>
+
+      <!-- COMPROMISED / GAME OVER OVERLAY -->
+      <div class="overlay hidden" id="gameover-overlay">
+        <span class="overlay-badge badge-alert" id="fail-reason">Spotted in Vision Cone</span>
+        <h1>COMPROMISED</h1>
+        <p id="fail-desc">Cover blown. Security locked down the perimeter.</p>
+
+        <div class="summary-stats">
+          <div class="stat-item" style="align-items:center;">
+            <span class="stat-label">Contracts</span>
+            <span class="stat-value stat-contract" id="end-contracts">0</span>
+          </div>
+          <div class="stat-item" style="align-items:center;">
+            <span class="stat-label">Total Cash</span>
+            <span class="stat-value stat-cash" id="end-cash">$0</span>
+          </div>
+          <div class="stat-item" style="align-items:center;">
+            <span class="stat-label">Best Run</span>
+            <span class="stat-value stat-mult" id="end-best">$0</span>
+          </div>
+        </div>
+
+        <button class="primary-btn" id="btn-restart" type="button">
+          RETRY CONTRACT (SPACE / CLICK)
+        </button>
+      </div>
+    </div>
+
+    <!-- BOTTOM HUD / DASH METER & FALLBACK PAD -->
+    <footer class="hud-footer">
+      <div class="dash-meter-wrap">
+        <span class="dash-label" id="dash-status-text">CLOAK DASH READY</span>
+        <div class="dash-bar-bg">
+          <div class="dash-bar-fill" id="dash-bar-fill"></div>
+        </div>
+      </div>
+
+      <div class="controls-hint">
+        Move: <span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> or <span class="kbd">Arrows</span> &nbsp;|&nbsp;
+        Invisible Dash-Strike: <span class="kbd">SPACE</span>
+      </div>
+
+      <div class="quick-pad">
+        <button class="pad-btn" data-dir="ArrowLeft" type="button">◀</button>
+        <button class="pad-btn" data-dir="ArrowUp" type="button">▲</button>
+        <button class="pad-btn" data-dir="ArrowDown" type="button">▼</button>
+        <button class="pad-btn" data-dir="ArrowRight" type="button">▶</button>
+        <button class="pad-btn pad-dash" id="btn-mobile-dash" type="button">DASH</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. TWEAKABLE GAME CONFIGURATION CONSTANTS (EDIT THESE TO CUSTOMIZE FEEL)
+       ========================================================================== */
+    const PLAYER_SPEED = 240;               // Normal sneaking movement speed (pixels/sec)
+    const DASH_SPEED = 740;                 // High-speed dash-strike velocity (pixels/sec)
+    const JUMP_IMPULSE = 1.15;              // Initial dash lunge boost multiplier
+    const GRAVITY_DRAG = 0.88;              // Momentum decay / friction after dash
+    const DASH_DURATION = 0.25;             // Seconds player stays invisible/cloaked & dashing
+    const DASH_COOLDOWN = 1.25;             // Seconds required to recharge Dash-Strike
+    const PLAYER_RADIUS = 13;               // Primary Agent radius
+
+    const PARTNER_SPEED = 225;              // Second Partner Agent sneaking speed (pixels/sec)
+    const PARTNER_DASH_SPEED = 680;         // Second Partner Agent dash burst speed
+    const PARTNER_RADIUS = 11;              // Second Partner Agent radius
+
+    const GUARD_SPEED = 100;                // Base patrol movement speed of guards (pixels/sec)
+    const GUARD_SPEED_SCALE = 8;            // Extra guard speed added per contract level
+    const GUARD_RADIUS = 13;                // Brown guard circle radius
+    const GUARD_VISION_RANGE = 180;         // How far forward guard vision cones reach (pixels)
+    const GUARD_VISION_ANGLE = Math.PI / 3.5; // Cone spread angle (~51 degrees)
+    const GUARD_TURN_SPEED = 2.7;           // How smoothly guards turn toward waypoints
+
+    const BASE_GUARD_COUNT = 3;             // Guards on Contract #1
+    const SPAWN_RATE_PER_CONTRACT = 1;      // Additional guards spawned each new contract
+    const MAX_GUARDS = 11;                  // Maximum guards in room
+
+    const TARGET_RADIUS = 14;               // Yellow marked target radius
+    const TARGET_SPEED = 62;                // Slow pacing speed of the marked target
+    const CASH_PICKUP_RADIUS = 24;          // Pickup radius for cash drop
+
+    const BASE_PAYOUT = 100;                // $100 earned per completed revenge contract
+    const MULTIPLIER_STEP = 0.5;            // Multiplier boost per contract (1.0x, 1.5x, 2.0x...)
+
+    // Signature Color Palette: Red, Brown, Pink, Yellow, White
+    const PALETTE = {
+      floorWhite: "#ffffff",
+      floorTint: "#fff5f7",
+      gridPink: "rgba(244, 143, 177, 0.22)",
+      wallBrown: "#4e342e",
+      wallBorder: "#3e2723",
+      playerRed: "#d32f2f",
+      playerWhite: "#ffffff",
+      partnerPink: "#f48fb1",
+      partnerDeep: "#ec407a",
+      targetYellow: "#fbc02d",
+      targetGlow: "rgba(251, 192, 45, 0.32)",
+      guardBrown: "#5d4037",
+      visionRed: "rgba(211, 47, 47, 0.26)",
+      visionEdge: "rgba(211, 47, 47, 0.55)",
+      cashYellow: "#fdd835",
+      cashPink: "#ec407a"
+    };
+
+    /* ==========================================================================
+       2. CANVAS & DOM REFERENCES
+       ========================================================================== */
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const WORLD_W = 960;
+    const WORLD_H = 600;
+    canvas.width = WORLD_W;
+    canvas.height = WORLD_H;
+
+    const hudContract = document.getElementById("hud-contract");
+    const hudMult = document.getElementById("hud-mult");
+    const hudPartner = document.getElementById("hud-partner");
+    const hudCash = document.getElementById("hud-cash");
+    const hudBest = document.getElementById("hud-best");
+    const dashBarFill = document.getElementById("dash-bar-fill");
+    const dashStatusText = document.getElementById("dash-status-text");
+
+    const startOverlay = document.getElementById("start-overlay");
+    const gameoverOverlay = document.getElementById("gameover-overlay");
+    const failReasonEl = document.getElementById("fail-reason");
+    const failDescEl = document.getElementById("fail-desc");
+    const endContractsEl = document.getElementById("end-contracts");
+    const endCashEl = document.getElementById("end-cash");
+    const endBestEl = document.getElementById("end-best");
+
+    const btnStart = document.getElementById("btn-start");
+    const btnRestart = document.getElementById("btn-restart");
+    const btnMute = document.getElementById("btn-mute");
+    const btnMobileDash = document.getElementById("btn-mobile-dash");
+
+    /* ==========================================================================
+       3. SYNTHESIZED WEB AUDIO (ZERO EXTERNAL SOUND LINKS)
+       ========================================================================== */
+    class SoundEffects {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(freqStart, freqEnd, duration, type = "sine", vol = 0.14) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freqStart, now);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), now + duration);
+
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      playDash() {
+        this.playTone(580, 190, 0.2, "triangle", 0.16);
+      }
+
+      playEliminate() {
+        this.playTone(220, 65, 0.22, "sawtooth", 0.18);
+        setTimeout(() => this.playTone(520, 780, 0.14, "sine", 0.12), 50);
+      }
+
+      playCash() {
+        this.playTone(587.33, 880, 0.12, "sine", 0.16);
+        setTimeout(() => this.playTone(880, 1174.66, 0.2, "triangle", 0.16), 90);
+      }
+
+      playAlert() {
+        this.playTone(340, 130, 0.35, "sawtooth", 0.2);
+      }
+    }
+
+    const sfx = new SoundEffects();
+
+    /* ==========================================================================
+       4. GAME STATE & ENTITIES
+       ========================================================================== */
+    let gameState = "START"; // "START" | "PLAYING" | "GAMEOVER"
+    let contractNum = 1;
+    let totalCash = 0;
+    let bestCash = 0;
+    let screenShake = 0;
+
+    try {
+      bestCash = parseInt(localStorage.getItem("equalizer_best_cash") || "0", 10) || 0;
+    } catch (_) {
+      bestCash = 0;
+    }
+
+    const keys = {};
+
+    const player = {
+      x: 76,
+      y: WORLD_H / 2,
+      vx: 0,
+      vy: 0,
+      facing: 0,
+      dashTimer: 0,
+      dashCooldownTimer: 0,
+      dashDirX: 1,
+      dashDirY: 0,
+      isCloaked: false
+    };
+
+    const partner = {
+      active: false,
+      x: 76,
+      y: WORLD_H / 2 + 42,
+      facing: 0,
+      dashTimer: 0,
+      dashCooldownTimer: 0,
+      dashDirX: 1,
+      dashDirY: 0,
+      isCloaked: false
+    };
+
+    let target = null;
+    let cashDrop = null;
+    let guards = [];
+    let walls = [];
+    let particles = [];
+    let floatingTexts = [];
+    let dashAfterimages = [];
+
+    /* ==========================================================================
+       5. ROOM LAYOUTS & RAYCASTING (VISION CONES BLOCKED BY WALLS)
+       ========================================================================== */
+    const ROOM_LAYOUTS = [
+      [
+        { x: 240, y: 120, w: 30, h: 150 },
+        { x: 240, y: 330, w: 30, h: 150 },
+        { x: 465, y: 205, w: 30, h: 190 },
+        { x: 685, y: 110, w: 30, h: 140 },
+        { x: 685, y: 350, w: 30, h: 140 }
+      ],
+      [
+        { x: 220, y: 190, w: 130, h: 28 },
+        { x: 220, y: 382, w: 130, h: 28 },
+        { x: 465, y: 95, w: 30, h: 135 },
+        { x: 465, y: 370, w: 30, h: 135 },
+        { x: 630, y: 275, w: 125, h: 50 }
+      ],
+      [
+        { x: 250, y: 110, w: 32, h: 140 },
+        { x: 250, y: 350, w: 32, h: 140 },
+        { x: 420, y: 240, w: 120, h: 28 },
+        { x: 420, y: 332, w: 120, h: 28 },
+        { x: 680, y: 170, w: 32, h: 260 }
+      ]
+    ];
+
+    function buildWalls(layoutIndex) {
+      const t = 18;
+      walls = [
+        { x: 0, y: 0, w: WORLD_W, h: t },
+        { x: 0, y: WORLD_H - t, w: WORLD_W, h: t },
+        { x: 0, y: 0, w: t, h: WORLD_H },
+        { x: WORLD_W - t, y: 0, w: t, h: WORLD_H }
+      ];
+      const interior = ROOM_LAYOUTS[layoutIndex % ROOM_LAYOUTS.length];
+      for (const rect of interior) {
+        walls.push({ ...rect });
+      }
+    }
+
+    function resolveCircleWalls(entity, radius) {
+      for (const w of walls) {
+        const closestX = Math.max(w.x, Math.min(entity.x, w.x + w.w));
+        const closestY = Math.max(w.y, Math.min(entity.y, w.y + w.h));
+        const dx = entity.x - closestX;
+        const dy = entity.y - closestY;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq < radius * radius) {
+          const dist = Math.sqrt(distSq) || 0.001;
+          const overlap = radius - dist;
+          entity.x += (dx / dist) * overlap;
+          entity.y += (dy / dist) * overlap;
+        }
+      }
+    }
+
+    function rayRectIntersection(ox, oy, dx, dy, maxDist, rect) {
+      let tmin = 0;
+      let tmax = maxDist;
+
+      if (Math.abs(dx) < 1e-8) {
+        if (ox < rect.x || ox > rect.x + rect.w) return null;
+      } else {
+        const invD = 1 / dx;
+        let t1 = (rect.x - ox) * invD;
+        let t2 = (rect.x + rect.w - ox) * invD;
+        if (t1 > t2) { const tmp = t1; t1 = t2; t2 = tmp; }
+        tmin = Math.max(tmin, t1);
+        tmax = Math.min(tmax, t2);
+        if (tmin > tmax) return null;
+      }
+
+      if (Math.abs(dy) < 1e-8) {
+        if (oy < rect.y || oy > rect.y + rect.h) return null;
+      } else {
+        const invD = 1 / dy;
+        let t1 = (rect.y - oy) * invD;
+        let t2 = (rect.y + rect.h - oy) * invD;
+        if (t1 > t2) { const tmp = t1; t1 = t2; t2 = tmp; }
+        tmin = Math.max(tmin, t1);
+        tmax = Math.min(tmax, t2);
+        if (tmin > tmax) return null;
+      }
+
+      return tmin;
+    }
+
+    function castRay(ox, oy, angle, maxDist) {
+      const dx = Math.cos(angle);
+      const dy = Math.sin(angle);
+      let closest = maxDist;
+
+      for (const w of walls) {
+        const hit = rayRectIntersection(ox, oy, dx, dy, closest, w);
+        if (hit !== null && hit < closest) {
+          closest = hit;
+        }
+      }
+
+      return {
+        x: ox + dx * closest,
+        y: oy + dy * closest,
+        dist: closest
+      };
+    }
+
+    /* ==========================================================================
+       6. CONTRACT SETUP & ENTITY SPAWNING
+       ========================================================================== */
+    function getMultiplier() {
+      return 1 + (contractNum - 1) * MULTIPLIER_STEP;
+    }
+
+    function updateHUD() {
+      hudContract.textContent = `#${String(contractNum).padStart(2, "0")}`;
+      hudMult.textContent = `${getMultiplier().toFixed(1)}x`;
+      hudCash.textContent = `$${totalCash}`;
+      hudBest.textContent = `$${bestCash}`;
+
+      if (partner.active) {
+        hudPartner.textContent = "ACTIVE DUO";
+        hudPartner.style.color = PALETTE.partnerDeep;
+      } else {
+        hudPartner.textContent = "LOCKED ($100)";
+        hudPartner.style.color = "#8d6e63";
+      }
+    }
+
+    function pointHitsWall(x, y, pad = 26) {
+      for (const w of walls) {
+        if (
+          x > w.x - pad &&
+          x < w.x + w.w + pad &&
+          y > w.y - pad &&
+          y < w.y + w.h + pad
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function setupContract(num) {
+      contractNum = num;
+      buildWalls(num - 1);
+
+      // Reset Player on left entry zone
+      player.x = 76;
+      player.y = WORLD_H / 2;
+      player.vx = 0;
+      player.vy = 0;
+      player.facing = 0;
+      player.dashTimer = 0;
+      player.dashCooldownTimer = 0;
+      player.isCloaked = false;
+
+      // Unlock Second Partner Agent once money has been won ($100+)
+      partner.active = totalCash >= BASE_PAYOUT || contractNum > 1;
+      partner.x = 76;
+      partner.y = WORLD_H / 2 + 42;
+      partner.facing = 0;
+      partner.dashTimer = 0;
+      partner.dashCooldownTimer = 0;
+      partner.isCloaked = false;
+
+      // Spawn Yellow Marked Target on right side
+      let tx = WORLD_W - 115;
+      let ty = WORLD_H / 2;
+      for (let tries = 0; tries < 40; tries++) {
+        const candX = WORLD_W - 185 + Math.random() * 115;
+        const candY = 85 + Math.random() * (WORLD_H - 170);
+        if (!pointHitsWall(candX, candY, 32)) {
+          tx = candX;
+          ty = candY;
+          break;
+        }
+      }
+
+      const wp2Y = ty > WORLD_H / 2 ? Math.max(85, ty - 115) : Math.min(WORLD_H - 85, ty + 115);
+      target = {
+        x: tx,
+        y: ty,
+        alive: true,
+        waypoints: [
+          { x: tx, y: ty },
+          { x: tx, y: pointHitsWall(tx, wp2Y, 28) ? ty : wp2Y }
+        ],
+        wpIndex: 1
+      };
+
+      cashDrop = null;
+      dashAfterimages = [];
+
+      // Spawn Brown Guards (increases each contract)
+      guards = [];
+      const guardCount = Math.min(
+        MAX_GUARDS,
+        BASE_GUARD_COUNT + (contractNum - 1) * SPAWN_RATE_PER_CONTRACT
+      );
+      const speed = GUARD_SPEED + (contractNum - 1) * GUARD_SPEED_SCALE;
+
+      for (let g = 0; g < guardCount; g++) {
+        let gx = 340 + ((g * 125) % 440);
+        let gy = 100 + ((g * 145) % (WORLD_H - 200));
+
+        for (let tries = 0; tries < 50; tries++) {
+          const rx = 215 + Math.random() * (WORLD_W - 310);
+          const ry = 65 + Math.random() * (WORLD_H - 130);
+          if (!pointHitsWall(rx, ry, 30) && Math.hypot(rx - player.x, ry - player.y) > 190) {
+            gx = rx;
+            gy = ry;
+            break;
+          }
+        }
+
+        const route = [{ x: gx, y: gy }];
+        const horiz = g % 2 === 0;
+        const offset = (g % 3 === 0 ? 1 : -1) * 135;
+        const wx = horiz ? Math.max(195, Math.min(WORLD_W - 75, gx + offset)) : gx;
+        const wy = horiz ? gy : Math.max(65, Math.min(WORLD_H - 65, gy + offset));
+
+        if (!pointHitsWall(wx, wy, 28)) {
+          route.push({ x: wx, y: wy });
+        } else {
+          route.push({ x: gx, y: WORLD_H - gy });
+        }
+
+        const initAngle = Math.atan2(route[1].y - gy, route[1].x - gx);
+        guards.push({
+          x: gx,
+          y: gy,
+          angle: initAngle,
+          speed,
+          waypoints: route,
+          wpIndex: 1,
+          waitTimer: 0
+        });
+      }
+
+      spawnFloatingText(player.x + 28, player.y - 24, `CONTRACT #${String(contractNum).padStart(2, "0")}`, PALETTE.playerRed);
+      if (partner.active && contractNum === 2) {
+        spawnFloatingText(partner.x + 36, partner.y + 24, "PARTNER AGENT JOINED!", PALETTE.partnerDeep);
+      }
+      updateHUD();
+    }
+
+    function focusGameCanvas() {
+      window.focus();
+      if (canvas && typeof canvas.focus === "function") {
+        canvas.focus({ preventScroll: true });
+      }
+    }
+
+    function startNewGame() {
+      sfx.init();
+      focusGameCanvas();
+      totalCash = 0;
+      particles = [];
+      floatingTexts = [];
+      startOverlay.classList.add("hidden");
+      gameoverOverlay.classList.add("hidden");
+      gameState = "PLAYING";
+      setupContract(1);
+    }
+
+    function triggerCompromised(reason, description) {
+      if (gameState !== "PLAYING") return;
+      gameState = "GAMEOVER";
+      screenShake = 12;
+      sfx.playAlert();
+      spawnParticles(player.x, player.y, PALETTE.playerRed, 28);
+
+      failReasonEl.textContent = reason;
+      failDescEl.textContent = description;
+      endContractsEl.textContent = String(contractNum - 1);
+      endCashEl.textContent = `$${totalCash}`;
+      endBestEl.textContent = `$${bestCash}`;
+
+      gameoverOverlay.classList.remove("hidden");
+    }
+
+    /* ==========================================================================
+       7. DASH-STRIKE & VISUAL EFFECTS
+       ========================================================================== */
+    function activateDashStrike() {
+      if (gameState !== "PLAYING") return;
+      if (player.dashCooldownTimer > 0 || player.dashTimer > 0) return;
+
+      let dirX = Math.cos(player.facing);
+      let dirY = Math.sin(player.facing);
+
+      const inputX = (keys["ArrowRight"] || keys["KeyD"] ? 1 : 0) - (keys["ArrowLeft"] || keys["KeyA"] ? 1 : 0);
+      const inputY = (keys["ArrowDown"] || keys["KeyS"] ? 1 : 0) - (keys["ArrowUp"] || keys["KeyW"] ? 1 : 0);
+      if (inputX !== 0 || inputY !== 0) {
+        const len = Math.hypot(inputX, inputY);
+        dirX = inputX / len;
+        dirY = inputY / len;
+        player.facing = Math.atan2(dirY, dirX);
+      }
+
+      player.dashDirX = dirX;
+      player.dashDirY = dirY;
+      player.dashTimer = DASH_DURATION;
+      player.dashCooldownTimer = DASH_COOLDOWN;
+      player.isCloaked = true;
+
+      sfx.playDash();
+      spawnParticles(player.x, player.y, PALETTE.partnerPink, 14);
+      spawnFloatingText(player.x, player.y - 20, "CLOAKED DASH!", PALETTE.playerRed);
+    }
+
+    function spawnParticles(x, y, color, count) {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 45 + Math.random() * 190;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 0.35 + Math.random() * 0.3,
+          maxLife: 0.65,
+          size: 2.5 + Math.random() * 3.5,
+          color
+        });
+      }
+    }
+
+    function spawnFloatingText(x, y, text, color) {
+      floatingTexts.push({
+        x,
+        y,
+        text,
+        color,
+        life: 1.05
+      });
+    }
+
+    /* ==========================================================================
+       8. SIMULATION UPDATE LOOP
+       ========================================================================== */
+    function normalizeAngle(a) {
+      while (a > Math.PI) a -= Math.PI * 2;
+      while (a < -Math.PI) a += Math.PI * 2;
+      return a;
+    }
+
+    function updateDashHUD() {
+      if (player.dashTimer > 0) {
+        dashBarFill.style.width = `${(player.dashTimer / DASH_DURATION) * 100}%`;
+        dashBarFill.style.backgroundColor = PALETTE.yellowGold;
+        dashStatusText.textContent = "INVISIBLE // DASHING";
+        dashStatusText.style.color = "#d97706";
+      } else if (player.dashCooldownTimer > 0) {
+        const pct = Math.max(0, 1 - player.dashCooldownTimer / DASH_COOLDOWN);
+        dashBarFill.style.width = `${pct * 100}%`;
+        dashBarFill.style.backgroundColor = PALETTE.partnerPink;
+        dashStatusText.textContent = "RECHARGING CLOAK...";
+        dashStatusText.style.color = PALETTE.brownMuted;
+      } else {
+        dashBarFill.style.width = "100%";
+        dashBarFill.style.backgroundColor = PALETTE.playerRed;
+        dashStatusText.textContent = "CLOAK DASH READY";
+        dashStatusText.style.color = PALETTE.playerRed;
+      }
+    }
+
+    function update(dt) {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vx *= 0.92;
+        p.vy *= 0.92;
+        p.life -= dt;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.y -= 28 * dt;
+        ft.life -= dt;
+        if (ft.life <= 0) floatingTexts.splice(i, 1);
+      }
+
+      for (let i = dashAfterimages.length - 1; i >= 0; i--) {
+        dashAfterimages[i].alpha -= dt * 3.4;
+        if (dashAfterimages[i].alpha <= 0) dashAfterimages.splice(i, 1);
+      }
+
+      if (screenShake > 0) {
+        screenShake = Math.max(0, screenShake - dt * 35);
+      }
+
+      if (gameState !== "PLAYING") return;
+
+      // Cooldown tick
+      if (player.dashCooldownTimer > 0) {
+        player.dashCooldownTimer = Math.max(0, player.dashCooldownTimer - dt);
+      }
+
+      // Player Movement vs Dash-Strike
+      if (player.dashTimer > 0) {
+        player.dashTimer -= dt;
+        player.isCloaked = true;
+        player.vx = player.dashDirX * DASH_SPEED * JUMP_IMPULSE;
+        player.vy = player.dashDirY * DASH_SPEED * JUMP_IMPULSE;
+        player.x += player.vx * dt;
+        player.y += player.vy * dt;
+
+        dashAfterimages.push({
+          x: player.x,
+          y: player.y,
+          alpha: 0.65,
+          color: "rgba(211, 47, 47, "
+        });
+
+        if (player.dashTimer <= 0) {
+          player.dashTimer = 0;
+          player.isCloaked = false;
+        }
+      } else {
+        player.isCloaked = false;
+        const moveX = (keys["ArrowRight"] || keys["KeyD"] ? 1 : 0) - (keys["ArrowLeft"] || keys["KeyA"] ? 1 : 0);
+        const moveY = (keys["ArrowDown"] || keys["KeyS"] ? 1 : 0) - (keys["ArrowUp"] || keys["KeyW"] ? 1 : 0);
+
+        if (moveX !== 0 || moveY !== 0) {
+          const len = Math.hypot(moveX, moveY);
+          const nx = moveX / len;
+          const ny = moveY / len;
+          player.vx = nx * PLAYER_SPEED;
+          player.vy = ny * PLAYER_SPEED;
+          player.x += player.vx * dt;
+          player.y += player.vy * dt;
+          player.facing = Math.atan2(ny, nx);
+        } else {
+          player.vx *= GRAVITY_DRAG;
+          player.vy *= GRAVITY_DRAG;
+          player.x += player.vx * dt;
+          player.y += player.vy * dt;
+        }
+      }
+
+      resolveCircleWalls(player, PLAYER_RADIUS);
+      updateDashHUD();
+
+      // Update Autonomous Second Partner Agent (unlocked once money has been won)
+      if (partner.active) {
+        updatePartnerAgent(dt);
+      }
+
+      // Update Yellow Marked Target
+      if (target && target.alive) {
+        const wp = target.waypoints[target.wpIndex];
+        const tdx = wp.x - target.x;
+        const tdy = wp.y - target.y;
+        const tdist = Math.hypot(tdx, tdy);
+
+        if (tdist < 6) {
+          target.wpIndex = (target.wpIndex + 1) % target.waypoints.length;
+        } else {
+          target.x += (tdx / tdist) * TARGET_SPEED * dt;
+          target.y += (tdy / tdist) * TARGET_SPEED * dt;
+        }
+        resolveCircleWalls(target, TARGET_RADIUS);
+
+        const distToTarget = Math.hypot(player.x - target.x, player.y - target.y);
+        const partnerDistToTarget = partner.active
+          ? Math.hypot(partner.x - target.x, partner.y - target.y)
+          : Infinity;
+
+        const struckByPlayer = distToTarget <= PLAYER_RADIUS + TARGET_RADIUS + 4;
+        const struckByPartner = partner.active && partnerDistToTarget <= PARTNER_RADIUS + TARGET_RADIUS + 4;
+
+        if (struckByPlayer || struckByPartner) {
+          target.alive = false;
+          screenShake = 8;
+          sfx.playEliminate();
+          spawnParticles(target.x, target.y, PALETTE.targetYellow, 24);
+          spawnFloatingText(
+            target.x,
+            target.y - 18,
+            struckByPartner && !struckByPlayer ? "PARTNER TAKEDOWN!" : "TARGET ELIMINATED!",
+            struckByPartner && !struckByPlayer ? PALETTE.partnerDeep : PALETTE.brownDark
+          );
+
+          const payoutAmount = Math.round(BASE_PAYOUT * getMultiplier());
+          cashDrop = {
+            x: target.x,
+            y: target.y,
+            amount: payoutAmount
+          };
+        }
+      }
+
+      // Check Cash Pickup (either You or Partner can secure the payout)
+      if (cashDrop) {
+        const distToCash = Math.hypot(player.x - cashDrop.x, player.y - cashDrop.y);
+        const partnerDistToCash = partner.active
+          ? Math.hypot(partner.x - cashDrop.x, partner.y - cashDrop.y)
+          : Infinity;
+
+        if (distToCash <= PLAYER_RADIUS + CASH_PICKUP_RADIUS || partnerDistToCash <= PARTNER_RADIUS + CASH_PICKUP_RADIUS) {
+          const earned = cashDrop.amount;
+          totalCash += earned;
+          if (totalCash > bestCash) {
+            bestCash = totalCash;
+            try {
+              localStorage.setItem("equalizer_best_cash", String(bestCash));
+            } catch (_) {}
+          }
+
+          sfx.playCash();
+          spawnParticles(cashDrop.x, cashDrop.y, PALETTE.cashYellow, 26);
+          spawnFloatingText(cashDrop.x, cashDrop.y - 18, `+$${earned} SECURED!`, PALETTE.playerRed);
+          cashDrop = null;
+
+          // Advance to next contract (unlocks Partner Agent after first $100!)
+          setupContract(contractNum + 1);
+          return;
+        }
+      }
+
+      // Update Brown Guards & Red Vision Cone Detection
+      for (const g of guards) {
+        if (g.waitTimer > 0) {
+          g.waitTimer -= dt;
+        } else {
+          const wp = g.waypoints[g.wpIndex];
+          const gdx = wp.x - g.x;
+          const gdy = wp.y - g.y;
+          const gdist = Math.hypot(gdx, gdy);
+
+          if (gdist < 8) {
+            g.wpIndex = (g.wpIndex + 1) % g.waypoints.length;
+            g.waitTimer = 0.45;
+          } else {
+            const desiredAngle = Math.atan2(gdy, gdx);
+            const diff = normalizeAngle(desiredAngle - g.angle);
+            g.angle += Math.sign(diff) * Math.min(Math.abs(diff), GUARD_TURN_SPEED * dt);
+
+            g.x += Math.cos(g.angle) * g.speed * dt;
+            g.y += Math.sin(g.angle) * g.speed * dt;
+            resolveCircleWalls(g, GUARD_RADIUS);
+          }
+        }
+
+        // Physical Contact Check
+        const distToPlayer = Math.hypot(player.x - g.x, player.y - g.y);
+        if (distToPlayer < PLAYER_RADIUS + GUARD_RADIUS - 2) {
+          triggerCompromised("Captured by Guard", "You collided directly with a patrolling guard.");
+          return;
+        }
+
+        // Red Vision Cone Check (ignored while invisible during Dash-Strike)
+        if (!player.isCloaked && distToPlayer <= GUARD_VISION_RANGE) {
+          const angleToPlayer = Math.atan2(player.y - g.y, player.x - g.x);
+          const angleDiff = Math.abs(normalizeAngle(angleToPlayer - g.angle));
+
+          if (angleDiff <= GUARD_VISION_ANGLE * 0.5) {
+            const ray = castRay(g.x, g.y, angleToPlayer, distToPlayer);
+            if (ray.dist >= distToPlayer - PLAYER_RADIUS * 0.5) {
+              triggerCompromised("Spotted in Red Vision Cone", "A guard caught sight of you. Use Spacebar to cloak-dash past cones!");
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    function updatePartnerAgent(dt) {
+      if (partner.dashCooldownTimer > 0) {
+        partner.dashCooldownTimer = Math.max(0, partner.dashCooldownTimer - dt);
+      }
+
+      if (partner.dashTimer > 0) {
+        partner.dashTimer -= dt;
+        partner.isCloaked = true;
+        partner.x += partner.dashDirX * PARTNER_DASH_SPEED * dt;
+        partner.y += partner.dashDirY * PARTNER_DASH_SPEED * dt;
+
+        dashAfterimages.push({
+          x: partner.x,
+          y: partner.y,
+          alpha: 0.55,
+          color: "rgba(244, 143, 177, "
+        });
+
+        if (partner.dashTimer <= 0) {
+          partner.dashTimer = 0;
+          partner.isCloaked = false;
+        }
+        resolveCircleWalls(partner, PARTNER_RADIUS);
+        return;
+      }
+
+      let goalX = player.x - 28;
+      let goalY = player.y + 28;
+
+      if (target && target.alive) {
+        goalX = target.x;
+        goalY = target.y;
+      } else if (cashDrop) {
+        goalX = cashDrop.x;
+        goalY = cashDrop.y;
+      }
+
+      let steerX = goalX - partner.x;
+      let steerY = goalY - partner.y;
+      const goalDist = Math.hypot(steerX, steerY) || 1;
+      steerX /= goalDist;
+      steerY /= goalDist;
+
+      let inDanger = false;
+      for (const g of guards) {
+        const dx = partner.x - g.x;
+        const dy = partner.y - g.y;
+        const dist = Math.hypot(dx, dy) || 1;
+
+        if (dist < GUARD_VISION_RANGE + 35) {
+          const angleFromGuard = Math.atan2(dy, dx);
+          const coneDiff = Math.abs(normalizeAngle(angleFromGuard - g.angle));
+          if (coneDiff < GUARD_VISION_ANGLE * 0.65 || dist < 95) {
+            inDanger = true;
+            const weight = (GUARD_VISION_RANGE + 45 - dist) / 65;
+            steerX += (dx / dist) * weight * 1.8;
+            steerY += (dy / dist) * weight * 1.8;
+          }
+        }
+      }
+
+      if (partner.dashCooldownTimer <= 0 && ((target && target.alive && goalDist < 135) || inDanger)) {
+        const norm = Math.hypot(steerX, steerY) || 1;
+        partner.dashDirX = steerX / norm;
+        partner.dashDirY = steerY / norm;
+        partner.facing = Math.atan2(partner.dashDirY, partner.dashDirX);
+        partner.dashTimer = DASH_DURATION;
+        partner.dashCooldownTimer = DASH_COOLDOWN * 1.15;
+        partner.isCloaked = true;
+        spawnParticles(partner.x, partner.y, PALETTE.partnerPink, 8);
+        return;
+      }
+
+      const steerLen = Math.hypot(steerX, steerY);
+      if (steerLen > 0.01) {
+        const nx = steerX / steerLen;
+        const ny = steerY / steerLen;
+        partner.x += nx * PARTNER_SPEED * dt;
+        partner.y += ny * PARTNER_SPEED * dt;
+        partner.facing = Math.atan2(ny, nx);
+      }
+
+      resolveCircleWalls(partner, PARTNER_RADIUS);
+    }
+
+    /* ==========================================================================
+       9. CLEAN CANVAS RENDERING (RED, BROWN, PINK, YELLOW, WHITE)
+       ========================================================================== */
+    function render(timeMs) {
+      const t = timeMs * 0.001;
+      ctx.save();
+
+      if (screenShake > 0.1) {
+        const sx = (Math.random() - 0.5) * screenShake;
+        const sy = (Math.random() - 0.5) * screenShake;
+        ctx.translate(sx, sy);
+      }
+
+      // 1. Clean White Floor
+      ctx.fillStyle = PALETTE.floorWhite;
+      ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
+      // 2. Subtle Pink Architectural Grid
+      ctx.strokeStyle = PALETTE.gridPink;
+      ctx.lineWidth = 1;
+      const gridSize = 48;
+      for (let x = gridSize; x < WORLD_W; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, WORLD_H);
+        ctx.stroke();
+      }
+      for (let y = gridSize; y < WORLD_H; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(WORLD_W, y);
+        ctx.stroke();
+      }
+
+      // 3. Soft Pink Safe Extraction / Insertion Zone on Left
+      ctx.fillStyle = PALETTE.floorTint;
+      ctx.fillRect(18, 18, 118, WORLD_H - 36);
+      ctx.strokeStyle = PALETTE.partnerPink;
+      ctx.setLineDash([5, 5]);
+      ctx.strokeRect(18, 18, 118, WORLD_H - 36);
+      ctx.setLineDash([]);
+
+      // 4. Red Guard Vision Cones
+      for (const g of guards) {
+        drawVisionCone(g);
+      }
+
+      // 5. Minimal Brown Room Walls & Cover Pillars
+      for (const w of walls) {
+        ctx.fillStyle = PALETTE.wallBrown;
+        ctx.fillRect(w.x, w.y, w.w, w.h);
+        ctx.strokeStyle = PALETTE.wallBorder;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(w.x + 0.5, w.y + 0.5, w.w - 1, w.h - 1);
+      }
+
+      // 6. Yellow & Pink Cash Payout Drop
+      if (cashDrop) {
+        const pulse = 1 + Math.sin(t * 6) * 0.12;
+        ctx.save();
+        ctx.translate(cashDrop.x, cashDrop.y);
+        ctx.scale(pulse, pulse);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 18, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.targetGlow;
+        ctx.fill();
+
+        ctx.fillStyle = PALETTE.cashYellow;
+        ctx.strokeStyle = PALETTE.wallBorder;
+        ctx.lineWidth = 2;
+        roundRect(ctx, -13, -9, 26, 18, 5);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = PALETTE.playerRed;
+        ctx.font = "900 11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`$${cashDrop.amount}`, 0, 1);
+        ctx.restore();
+      }
+
+      // 7. Yellow Marked Target
+      if (target && target.alive) {
+        const pulse = 1 + Math.sin(t * 5) * 0.14;
+        ctx.save();
+        ctx.translate(target.x, target.y);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, TARGET_RADIUS * 1.65 * pulse, 0, Math.PI * 2);
+        ctx.strokeStyle = PALETTE.targetYellow;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, TARGET_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.targetYellow;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = PALETTE.wallBorder;
+        ctx.stroke();
+
+        ctx.fillStyle = PALETTE.wallBorder;
+        ctx.beginPath();
+        ctx.moveTo(0, -5);
+        ctx.lineTo(5, 0);
+        ctx.lineTo(0, 5);
+        ctx.lineTo(-5, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 8. Dash Afterimages
+      for (const img of dashAfterimages) {
+        ctx.beginPath();
+        ctx.arc(img.x, img.y, PLAYER_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = `${img.color}${img.alpha * 0.45})`;
+        ctx.fill();
+      }
+
+      // 9. Second Partner Agent (Pink & White Duo Operative)
+      if (partner.active) {
+        drawPartner();
+      }
+
+      // 10. Primary Agent (White Core + Red Ring)
+      drawPlayer();
+
+      // 11. Brown Guards
+      for (const g of guards) {
+        ctx.save();
+        ctx.translate(g.x, g.y);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, GUARD_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.guardBrown;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = PALETTE.wallBorder;
+        ctx.stroke();
+
+        ctx.rotate(g.angle);
+        ctx.fillStyle = PALETTE.playerRed;
+        ctx.beginPath();
+        ctx.arc(GUARD_RADIUS - 3, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 12. Particles
+      for (const p of particles) {
+        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // 13. Floating Callouts
+      for (const ft of floatingTexts) {
+        ctx.globalAlpha = Math.min(1, ft.life * 1.4);
+        ctx.font = "900 12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+    }
+
+    function drawVisionCone(guard) {
+      const rayCount = 34;
+      const startAngle = guard.angle - GUARD_VISION_ANGLE * 0.5;
+      const step = GUARD_VISION_ANGLE / rayCount;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(guard.x, guard.y);
+
+      for (let i = 0; i <= rayCount; i++) {
+        const ang = startAngle + step * i;
+        const hit = castRay(guard.x, guard.y, ang, GUARD_VISION_RANGE);
+        ctx.lineTo(hit.x, hit.y);
+      }
+
+      ctx.closePath();
+      ctx.fillStyle = PALETTE.visionRed;
+      ctx.fill();
+
+      ctx.strokeStyle = PALETTE.visionEdge;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawPlayer() {
+      ctx.save();
+      ctx.translate(player.x, player.y);
+
+      if (player.isCloaked) {
+        ctx.beginPath();
+        ctx.arc(0, 0, PLAYER_RADIUS + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = PALETTE.playerRed;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, PLAYER_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(211, 47, 47, 0.25)";
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, PLAYER_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.playerWhite;
+        ctx.fill();
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = PALETTE.playerRed;
+        ctx.stroke();
+
+        ctx.rotate(player.facing);
+        ctx.beginPath();
+        ctx.arc(PLAYER_RADIUS + 4, 0, 2.8, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.playerRed;
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawPartner() {
+      ctx.save();
+      ctx.translate(partner.x, partner.y);
+
+      if (partner.isCloaked) {
+        ctx.beginPath();
+        ctx.arc(0, 0, PARTNER_RADIUS + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = PALETTE.partnerDeep;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, PARTNER_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(244, 143, 177, 0.35)";
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, PARTNER_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.partnerPink;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = PALETTE.wallBorder;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, PARTNER_RADIUS * 0.45, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.playerWhite;
+        ctx.fill();
+
+        ctx.rotate(partner.facing);
+        ctx.beginPath();
+        ctx.arc(PARTNER_RADIUS + 3.5, 0, 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.partnerDeep;
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function roundRect(context, x, y, width, height, radius) {
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.lineTo(x + width - radius, y);
+      context.quadraticCurveTo(x + width, y, x + width, y + radius);
+      context.lineTo(x + width, y + height - radius);
+      context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      context.lineTo(x + radius, y + height);
+      context.quadraticCurveTo(x, y + height, x, y + height - radius);
+      context.lineTo(x, y + radius);
+      context.quadraticCurveTo(x, y, x + radius, y);
+      context.closePath();
+    }
+
+    /* ==========================================================================
+       10. MAIN ANIMATION LOOP
+       ========================================================================== */
+    let lastTime = 0;
+    function gameLoop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTime) / 1000);
+      lastTime = timestamp;
+
+      update(dt);
+      render(timestamp);
+      requestAnimationFrame(gameLoop);
+    }
+
+    /* ==========================================================================
+       11. BULLETPROOF FOCUS & KEYBOARD / MOUSE / TOUCH HANDLERS
+       ========================================================================== */
+    const BLOCKED_KEYS = new Set([
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "Space",
+      "Enter",
+      "KeyW",
+      "KeyA",
+      "KeyS",
+      "KeyD"
+    ]);
+
+    function handleKeyDown(e) {
+      if (BLOCKED_KEYS.has(e.code)) {
+        e.preventDefault();
+      }
+      keys[e.code] = true;
+
+      if (e.code === "Space" || e.code === "Enter") {
+        if (gameState === "START" || gameState === "GAMEOVER") {
+          startNewGame();
+        } else if (gameState === "PLAYING" && e.code === "Space") {
+          activateDashStrike();
+        }
+      }
+    }
+
+    function handleKeyUp(e) {
+      if (BLOCKED_KEYS.has(e.code)) {
+        e.preventDefault();
+      }
+      keys[e.code] = false;
+    }
+
+    window.addEventListener("keydown", handleKeyDown, { passive: false, capture: true });
+    document.addEventListener("keydown", handleKeyDown, { passive: false, capture: true });
+    window.addEventListener("keyup", handleKeyUp, { passive: false, capture: true });
+    document.addEventListener("keyup", handleKeyUp, { passive: false, capture: true });
+
+    // Click anywhere on Start or Game Over overlay to enter immediately
+    startOverlay.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startNewGame();
+    });
+
+    gameoverOverlay.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startNewGame();
+    });
+
+    btnStart.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startNewGame();
+    });
+
+    btnRestart.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startNewGame();
+    });
+
+    canvas.addEventListener("pointerdown", () => {
+      focusGameCanvas();
+    });
+
+    btnMute.addEventListener("click", (e) => {
+      e.stopPropagation();
+      sfx.muted = !sfx.muted;
+      btnMute.textContent = sfx.muted ? "SFX: OFF" : "SFX: ON";
+      focusGameCanvas();
+    });
+
+    btnMobileDash.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      focusGameCanvas();
+      activateDashStrike();
+    });
+
+    // On-screen directional buttons for click/touch playability
+    document.querySelectorAll(".pad-btn[data-dir]").forEach((btn) => {
+      const code = btn.getAttribute("data-dir");
+      btn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        focusGameCanvas();
+        keys[code] = true;
+      });
+      const release = () => { keys[code] = false; };
+      btn.addEventListener("pointerup", release);
+      btn.addEventListener("pointerleave", release);
+      btn.addEventListener("pointercancel", release);
+    });
+
+    window.onload = function () {
+      focusGameCanvas();
+      setupContract(1);
+      gameState = "START";
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
